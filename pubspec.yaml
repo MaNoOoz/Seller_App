@@ -1,0 +1,36 @@
+name: app
+description: Flutter Web app for merchant dashboard with Firebase and GetX
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.13.1
+  firebase_auth: ^5.5.4
+  cloud_firestore: ^5.6.8
+  firebase_storage: ^12.4.6
+  logger:
+  url_launcher:
+  get: ^4.7.2
+  get_storage: ^2.1.1
+  file_selector:
+  intl: ^0.20.2
+  fluttertoast: ^8.2.12
+  flutter_svg: ^2.1.0
+  cloudinary_public: ^0.23.1
+  cached_network_image: ^3.4.1
+  flutter_localizations: # <--- Add this
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
