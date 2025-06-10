@@ -48,5 +48,7 @@ class AppConstants {
   static const String isAvailableField = 'is_available'; // For products
 
   // --- Other potentially useful constants ---
-  static const Duration snackbarDuration = Duration(seconds: 3); // Default snackbar duration
+  static const Duration snackbarDuration = Duration(seconds: 3);
+
+  static const List<String> offerTypes = ['percentage', 'fixed'];
 }

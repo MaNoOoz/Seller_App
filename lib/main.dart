@@ -1,37 +1,51 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'firebase_options.dart'; // <--- NEW IMPORT: Import the generated Firebase options file
+import 'app/utils/theme_service.dart';
+import 'app/utils/app_themes.dart'; // Import the new AppThemes class
+import 'firebase_options.dart';
 import 'app/routes/app_pages.dart';
 import 'app/controllers/auth_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // <--- IMPORTANT CHANGE: Initialize Firebase with options ---
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Pass the current platform's options
+    options: DefaultFirebaseOptions.currentPlatform,
   );
-  // --- END IMPORTANT CHANGE ---
 
-  await GetStorage.init(); // Initialize GetStorage
+  await GetStorage.init(); // Initialize GetStorage for ThemeService
 
+  // Initialize AuthController and ThemeService
   Get.put(AuthController());
+  Get.put(ThemeService()); // Initialize ThemeService
 
-  runApp(
-    GetMaterialApp(
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeService themeService = Get.find<ThemeService>();
+
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Store Management App",
       initialRoute: Routes.SPLASH,
       getPages: AppPages.routes,
 
+      // Theme configuration now references AppThemes class
+      themeMode: themeService.themeMode,
+      theme: AppThemes.lightTheme, // Use the light theme from AppThemes
+      darkTheme: AppThemes.darkTheme, // Use the dark theme from AppThemes
+
       locale: const Locale('ar', 'AE'),
       fallbackLocale: const Locale('en', 'US'),
-
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -41,11 +55,6 @@ void main() async {
         Locale('ar', 'AE'),
         Locale('en', 'US'),
       ],
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade800),
-        useMaterial3: true,
-      ),
-    ),
-  );
+    );
+  }
 }

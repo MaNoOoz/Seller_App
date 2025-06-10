@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // For loading images
 
 import '../../routes/app_pages.dart';
+import '../../utils/theme_service.dart';
 import 'dashboard_controller.dart'; // Import routes
 
 class DashboardScreen extends GetView<DashboardController> {
@@ -23,21 +24,36 @@ class DashboardScreen extends GetView<DashboardController> {
         )),
         backgroundColor: colorScheme.primaryContainer,
         foregroundColor: colorScheme.onPrimaryContainer,
+        leading:   IconButton(
+          icon: const Icon(Icons.exit_to_app, ),
+          tooltip: 'تسجيل الخروج',
+
+          onPressed: () {
+            // Assuming you have an AuthController for logout
+            // Get.find<AuthController>().logout();
+            Get.snackbar('تسجيل الخروج', 'وظيفة تسجيل الخروج غير متوفرة هنا بعد');
+          },
+        ),
         actions: [
+
+          // Inside DashboardScreen's AppBar actions:
+          IconButton(
+            icon: Icon(Icons.brightness_6, color: colorScheme.onPrimaryContainer), // A sun/moon icon
+            onPressed: () {
+              Get.find<ThemeService>().switchTheme(); // Call the theme switcher
+            },
+            tooltip: 'تبديل الوضع الليلي/النهاري',
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
+            tooltip: 'تعديل',
+
             onPressed: () {
               controller.goToEditStore();
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              // Assuming you have an AuthController for logout
-              // Get.find<AuthController>().logout();
-              Get.snackbar('تسجيل الخروج', 'وظيفة تسجيل الخروج غير متوفرة هنا بعد');
-            },
-          ),
+          SizedBox(width: 22,),
+
         ],
       ),
       body: Obx(
