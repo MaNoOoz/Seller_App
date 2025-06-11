@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // For loading images
 
+import '../../controllers/auth_controller.dart';
 import '../../routes/app_pages.dart';
 import '../../utils/theme_service.dart';
 import 'dashboard_controller.dart'; // Import routes
@@ -30,8 +31,8 @@ class DashboardScreen extends GetView<DashboardController> {
 
           onPressed: () {
             // Assuming you have an AuthController for logout
-            // Get.find<AuthController>().logout();
-            Get.snackbar('تسجيل الخروج', 'وظيفة تسجيل الخروج غير متوفرة هنا بعد');
+            Get.find<AuthController>().logout();
+            Get.snackbar('تسجيل الخروج', '');
           },
         ),
         actions: [
@@ -170,15 +171,14 @@ class DashboardScreen extends GetView<DashboardController> {
                 // Products Summary Card
                 Text('ملخص المنتجات', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -191,39 +191,17 @@ class DashboardScreen extends GetView<DashboardController> {
                             )),
                           ],
                         ),
-                        const Divider(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: controller.goToAddProduct,
-                                icon: const Icon(Icons.add_box),
-                                label: const Text('إضافة منتج'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.secondaryContainer,
-                                  foregroundColor: colorScheme.onSecondaryContainer,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: controller.goToProductsList,
-                                icon: const Icon(Icons.list_alt),
-                                label: const Text('عرض الكل'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.tertiaryContainer,
-                                  foregroundColor: colorScheme.onTertiaryContainer,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                      const Divider(height: 24),
+                      _buildManagementSection(
+                        context,
+                        title: 'إدارة المنتجات',
+                        icon: Icons.inventory_2,
+                        onAdd: controller.goToAddProduct,
+                        onView: controller.goToProductsList,
+                        color: colorScheme.tertiaryContainer,
+                        onColor: colorScheme.onTertiaryContainer,
+                      ),                      ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -231,15 +209,15 @@ class DashboardScreen extends GetView<DashboardController> {
                 // Offers Summary Card
                 Text('ملخص العروض', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -252,53 +230,18 @@ class DashboardScreen extends GetView<DashboardController> {
                             )),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'العروض النشطة حاليًا:',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Obx(() => Text(
-                              '${controller.activeOffersCount.value}',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary),
-                            )),
-                          ],
-                        ),
-                        const Divider(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: controller.goToAddOffer,
-                                icon: const Icon(Icons.local_offer),
-                                label: const Text('إضافة عرض'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.secondaryContainer,
-                                  foregroundColor: colorScheme.onSecondaryContainer,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: controller.goToOffersList,
-                                icon: const Icon(Icons.view_list),
-                                label: const Text('عرض الكل'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorScheme.tertiaryContainer,
-                                  foregroundColor: colorScheme.onTertiaryContainer,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildManagementSection(
+                        context,
+                        title: 'إدارة العروض',
+                        icon: Icons.local_offer,
+                        onAdd: controller.goToAddOffer,
+                        onView: controller.goToOffersList,
+                        color: colorScheme.secondaryContainer,
+                        onColor: colorScheme.onSecondaryContainer,
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -307,6 +250,70 @@ class DashboardScreen extends GetView<DashboardController> {
             ),
           );
         },
+      ),
+    );
+  }
+  Widget _buildManagementSection(
+      BuildContext context, {
+        required String title,
+        required IconData icon,
+        required VoidCallback onAdd,
+        required VoidCallback onView,
+        required Color color,
+        required Color onColor,
+      }) {
+    return Card(
+      color: color,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 28, color: onColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: onColor),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onAdd,
+                    icon: Icon(Icons.add_circle, color: color),
+                    label: Text('إضافة جديد', style: TextStyle(color: color)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: onColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onView,
+                    icon: Icon(Icons.list, color: color),
+                    label: Text('عرض الكل', style: TextStyle(color: color)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: onColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

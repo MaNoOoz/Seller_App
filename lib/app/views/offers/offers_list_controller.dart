@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 
 
@@ -72,10 +73,14 @@ class OffersListController extends GetxController {
 
   // Future methods for editing/deleting offers
   void goToEditOffer(String offerId) {
-    // Navigate to an EditOfferScreen, passing offerId and storeId
-    logger.d('Navigate to edit offer: $offerId for store: $_storeId');
-    // Get.toNamed(Routes.EDIT_OFFER, arguments: {'offerId': offerId, 'storeId': _storeId});
-    Get.snackbar('ميزة قادمة', 'تعديل العرض ليس متاحًا بعد');
+    if (_storeId == null) {
+      Get.snackbar('خطأ', 'معرف المتجر غير متوفر لتعديل العرض.');
+      return;
+    }
+    Get.toNamed(
+      Routes.EDIT_OFFER,
+      arguments: {'offerId': offerId, 'storeId': _storeId},
+    );
   }
 
   Future<void> deleteOffer(String offerId) async {

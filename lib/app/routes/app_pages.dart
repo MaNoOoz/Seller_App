@@ -12,10 +12,14 @@ import '../views/edit_screen/edit_store_screen.dart';
 import '../views/no_access_screen.dart';
 import '../views/offers/add_offer_controller.dart';
 import '../views/offers/add_offer_screen.dart';
+import '../views/offers/edit_offer_controller.dart';
+import '../views/offers/edit_offer_screen.dart';
 import '../views/offers/offers_list_controller.dart';
 import '../views/offers/offers_list_screen.dart';
 import '../views/products/add_product_controller.dart';
 import '../views/products/add_product_screen.dart';
+import '../views/products/edit_product_controller.dart';
+import '../views/products/edit_product_screen.dart';
 import '../views/products/products_list_controller.dart';
 import '../views/products/products_list_screen.dart';
 import '../views/splash.dart';
@@ -82,6 +86,16 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut<OffersListController>(() => OffersListController());
       }),
+    ),
+    GetPage(
+      name: Routes.EDIT_OFFER, // New route for editing offer
+      page: () => const EditOfferScreen(),
+      binding: BindingsBuilder(() => Get.lazyPut(() => EditOfferController())),
+    ),
+    GetPage(
+      name: _Paths.EDIT_PRODUCT, // New route for editing product
+      page: () => const EditProductScreen(),
+      binding: BindingsBuilder(() => Get.lazyPut(() => EditProductController())),
     ),
     // Future routes for product/offer management
     // GetPage(name: Routes.ADD_PRODUCT, page: () => AddProductScreen(), binding: AddProductBinding()),

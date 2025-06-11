@@ -1,7 +1,9 @@
+// lib/app/controllers/products_list_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 
 
@@ -33,7 +35,7 @@ class ProductsListController extends GetxController {
   // Method to fetch products from Firestore in real-time
   void fetchProducts() {
     if (_storeId == null) {
-      error.value = 'لا يوجد معرف متجر لجلب المنتجات.';
+      error.value = 'معرف المتجر غير متوفر.';
       isLoading.value = false;
       return;
     }
@@ -41,20 +43,36 @@ class ProductsListController extends GetxController {
     isLoading.value = true;
     error.value = '';
 
-    // Listen to real-time updates from Firestore
     _firestore
-        .collection(AppConstants.productsCollection) // Use constants
-        .where(AppConstants.storeIdField, isEqualTo: _storeId) // Filter by store ID
-        .orderBy(AppConstants.createdAtField, descending: true) // Order by creation date
-        .snapshots() // Get a stream of query snapshots
+        .collection(AppConstants.productsCollection)
+        .where(AppConstants.storeIdField, isEqualTo: _storeId)
+        .orderBy(AppConstants.createdAtField, descending: true)
+        .snapshots()
         .listen(
-          (QuerySnapshot querySnapshot) {
-        final List<Map<String, dynamic>> fetchedProducts = [];
-        for (var doc in querySnapshot.docs) {
+          (QuerySnapshot snapshot) {
+        final fetchedProducts = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          fetchedProducts.add({'id': doc.id, ...data}); // Include document ID
-        }
-        products.assignAll(fetchedProducts); // Update the observable list
+          // Ensure product ID is included in the map
+          data[AppConstants.idField] = doc.id;
+
+          // --- FIX START: Handle imagesField potentially being a String instead of a List ---
+          final dynamic imagesData = data[AppConstants.imagesField];
+          List<String> loadedImageUrls = [];
+
+          if (imagesData is String && imagesData.isNotEmpty) {
+            loadedImageUrls.add(imagesData);
+            logger.d('ProductsListController: Converted single image string to list for product ${doc.id}');
+          } else if (imagesData is List) {
+            loadedImageUrls = List<String>.from(imagesData.whereType<String>());
+          } else {
+            logger.w('ProductsListController: Product ${doc.id} has no valid imagesField data or it is not a String/List.');
+          }
+          data[AppConstants.imagesField] = loadedImageUrls;
+          // --- FIX END ---
+
+          return data;
+        }).toList();
+        products.assignAll(fetchedProducts);
         isLoading.value = false;
         logger.d('Fetched ${fetchedProducts.length} products for store $_storeId');
       },
@@ -72,11 +90,16 @@ class ProductsListController extends GetxController {
 
   // Future methods for editing/deleting products
   void goToEditProduct(String productId) {
-    // Navigate to an EditProductScreen, passing productId and storeId
-    logger.d('Navigate to edit product: $productId for store: $_storeId');
-    // Get.toNamed(Routes.EDIT_PRODUCT, arguments: {'productId': productId, 'storeId': _storeId});
-    Get.snackbar('ميزة قادمة', 'تعديل المنتج ليس متاحًا بعد');
+    if (_storeId == null) {
+      Get.snackbar('خطأ', 'معرف المتجر غير متوفر لتعديل المنتج.');
+      return;
+    }
+    Get.toNamed(
+      Routes.EDIT_PRODUCT,
+      arguments: {'productId': productId, 'storeId': _storeId},
+    );
   }
+
 
   Future<void> deleteProduct(String productId) async {
     // Implement product deletion logic

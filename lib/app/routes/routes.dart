@@ -12,7 +12,11 @@ abstract class Routes {
   static const ADD_PRODUCT = _Paths.ADD_PRODUCT; // <--- NEW (for future)
   static const PRODUCTS_LIST = _Paths.PRODUCTS_LIST; // <--- NEW (for future)
   static const ADD_OFFER = _Paths.ADD_OFFER; // <--- NEW (for future)
-  static const OFFERS_LIST = _Paths.OFFERS_LIST; // <--- NEW (for future)
+  static const OFFERS_LIST = _Paths.OFFERS_LIST;
+  static const EDIT_OFFER = _Paths.EDIT_OFFER;
+  static const EDIT_PRODUCT = _Paths.EDIT_PRODUCT;
+
+
 }
 
 abstract class _Paths {
@@ -27,4 +31,6 @@ abstract class _Paths {
   static const PRODUCTS_LIST = '/products-list'; // <--- NEW (for future)
   static const ADD_OFFER = '/add-offer'; // <--- NEW (for future)
   static const OFFERS_LIST = '/offers-list'; // <--- NEW (for future)
+  static const EDIT_OFFER = '/edit-offer'; // <--- NEW (for future)
+  static const EDIT_PRODUCT = '/edit-product'; // <--- NEW (for future)
 }
