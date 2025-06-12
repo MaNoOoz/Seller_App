@@ -52,26 +52,46 @@ class ProductsListController extends GetxController {
           (QuerySnapshot snapshot) {
         final fetchedProducts = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          // Ensure product ID is included in the map
-          data[AppConstants.idField] = doc.id;
 
-          // --- FIX START: Handle imagesField potentially being a String instead of a List ---
+          // --- FIX START: Handle missing or null values gracefully ---
+          // Check if name is missing or empty
+          final name = data[AppConstants.nameField] ?? 'غير مُسمى';
+          final description = data[AppConstants.descriptionField] ?? 'لا يوجد وصف';
+          final price = data[AppConstants.priceField] ?? 0.0;
+          final category = data[AppConstants.categoryField] ?? 'غير مُحدد';
+          final isAvailable = data[AppConstants.isAvailableField] ?? false;
+
+          // Handle imagesField being either String, List, or missing
           final dynamic imagesData = data[AppConstants.imagesField];
           List<String> loadedImageUrls = [];
 
+          // If imagesField is a string, convert it to a list (legacy support)
           if (imagesData is String && imagesData.isNotEmpty) {
             loadedImageUrls.add(imagesData);
             logger.d('ProductsListController: Converted single image string to list for product ${doc.id}');
           } else if (imagesData is List) {
+            // If it's already a list, ensure all elements are strings
             loadedImageUrls = List<String>.from(imagesData.whereType<String>());
           } else {
+            // If imagesData is missing or invalid, log it and use an empty list
             logger.w('ProductsListController: Product ${doc.id} has no valid imagesField data or it is not a String/List.');
           }
-          data[AppConstants.imagesField] = loadedImageUrls;
           // --- FIX END ---
 
-          return data;
+          // Prepare product data
+          final productData = {
+            'productId': doc.id,
+            'name': name,
+            'description': description,
+            'price': price,
+            'category': category,
+            'isAvailable': isAvailable,
+            'images': loadedImageUrls,
+          };
+
+          return productData;
         }).toList();
+
         products.assignAll(fetchedProducts);
         isLoading.value = false;
         logger.d('Fetched ${fetchedProducts.length} products for store $_storeId');
@@ -100,9 +120,7 @@ class ProductsListController extends GetxController {
     );
   }
 
-
   Future<void> deleteProduct(String productId) async {
-    // Implement product deletion logic
     isLoading.value = true;
     error.value = '';
     try {

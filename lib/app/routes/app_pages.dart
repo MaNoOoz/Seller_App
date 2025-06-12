@@ -44,10 +44,10 @@ class AppPages {
         Get.lazyPut<DashboardController>(() => DashboardController());
       }),
     ),
-    GetPage(
-      name: Routes.REGISTER,
-      page: () => RegisterScreen(),
-    ),
+    // GetPage(
+    //   name: Routes.REGISTER,
+    //   page: () => RegisterScreen(),
+    // ),
     GetPage(
       name: Routes.NO_ACCESS,
       page: () => const NoAccessScreen(),

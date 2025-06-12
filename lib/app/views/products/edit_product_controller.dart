@@ -1,15 +1,15 @@
-// lib/app/controllers/edit_product_controller.dart
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide MultipartFile, FormData;
-import 'package:logger/logger.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:file_selector/file_selector.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:logger/logger.dart';
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
-import '../../utils/app_colors.dart'; // Ensure you have this for snackbar colors
+import '../../utils/app_colors.dart';
 
 class EditProductController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -21,15 +21,15 @@ class EditProductController extends GetxController {
   String? _productId;
   String? _storeId;
 
-  // New: For handling multiple product images
-  final RxList<XFile> selectedImages = <XFile>[].obs; // Newly selected files by user
-  final RxList<String> existingImageUrls = <String>[].obs; // URLs of images already in Firestore
+  // For handling multiple product images
+  final RxList<XFile> selectedImages = <XFile>[].obs;
+  final RxList<String> existingImageUrls = <String>[].obs;
 
   late TextEditingController nameController;
   late TextEditingController descriptionController;
   late TextEditingController priceController;
-  late TextEditingController categoryController; // Added for product category
-  var isAvailable = false.obs; // For product availability
+  late TextEditingController categoryController;
+  var isAvailable = false.obs;
 
   @override
   void onInit() {
@@ -37,7 +37,7 @@ class EditProductController extends GetxController {
     nameController = TextEditingController();
     descriptionController = TextEditingController();
     priceController = TextEditingController();
-    categoryController = TextEditingController(); // Initialize category controller
+    categoryController = TextEditingController();
 
     if (Get.arguments != null && Get.arguments is Map) {
       _productId = Get.arguments['productId'] as String?;
@@ -62,38 +62,33 @@ class EditProductController extends GetxController {
     nameController.dispose();
     descriptionController.dispose();
     priceController.dispose();
-    categoryController.dispose(); // Dispose category controller
+    categoryController.dispose();
     selectedImages.close();
     existingImageUrls.close();
     super.onClose();
   }
 
-  // --- Fetch Product Details ---
   Future<void> fetchProductDetails(String productId) async {
     isLoading.value = true;
     error.value = '';
     try {
-      final DocumentSnapshot doc =
-      await _firestore.collection(AppConstants.productsCollection).doc(productId).get();
+      final DocumentSnapshot doc = await _firestore.collection(AppConstants.productsCollection).doc(productId).get();
 
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         nameController.text = data[AppConstants.nameField] ?? '';
         descriptionController.text = data[AppConstants.descriptionField] ?? '';
         priceController.text = (data[AppConstants.priceField] ?? '').toString();
-        categoryController.text = data[AppConstants.categoryField] ?? ''; // Populate category
+        categoryController.text = data[AppConstants.categoryField] ?? '';
         isAvailable.value = data[AppConstants.isAvailableField] ?? false;
 
-        // Corrected: Handle 'imagesField' which might be a String or List<dynamic>
         final dynamic imagesData = data[AppConstants.imagesField];
         List<String> loadedImageUrls = [];
 
         if (imagesData is String && imagesData.isNotEmpty) {
-          // If it's a single string (from older implementation), convert to a list
           loadedImageUrls.add(imagesData);
           logger.d('Converted single image string to list: $imagesData');
         } else if (imagesData is List) {
-          // If it's already a list, ensure all elements are strings
           loadedImageUrls = List<String>.from(imagesData.whereType<String>());
           logger.d('Loaded image list from Firestore: $loadedImageUrls');
         } else {
@@ -114,39 +109,25 @@ class EditProductController extends GetxController {
     }
   }
 
-  // --- Image Picker (Multiple Images) ---
   Future<void> pickImages() async {
     final typeGroup = XTypeGroup(label: 'images', extensions: ['png', 'jpg', 'jpeg']);
-    final results = await openFiles(acceptedTypeGroups: [typeGroup]); // Removed allowMultiple: true
+    final results = await openFiles(acceptedTypeGroups: [typeGroup]);
     if (results.isNotEmpty) {
       selectedImages.addAll(results);
       logger.d('Selected ${results.length} new images.');
     }
   }
 
-  // --- Remove a newly selected image from the preview list ---
   void removeSelectedImage(XFile image) {
     selectedImages.remove(image);
     logger.d('Removed new selected image: ${image.name}');
   }
 
-  // --- Remove an existing image by its URL ---
   Future<void> removeExistingImage(String imageUrl) async {
     existingImageUrls.remove(imageUrl);
     logger.d('Removed existing image URL from list: $imageUrl');
-
-    // --- IMPORTANT: Cloudinary Deletion ---
-    // For secure and reliable deletion of old images from Cloudinary,
-    // it is strongly recommended to implement a backend function (e.g., Firebase Cloud Function)
-    // that handles signed deletion requests. Client-side deletion for signed uploads is insecure.
-    //
-    // For now, removing it from the list means it won't be saved to Firestore on update.
-    // Actual deletion from Cloudinary should happen securely on the backend when the product is updated.
-    logger.w('Cloudinary image deletion should ideally be handled by a secure backend and triggered on update.');
   }
 
-
-  // --- Cloudinary Upload for Product Images ---
   Future<List<String>> _uploadNewProductImagesToCloudinary() async {
     List<String> uploadedUrls = [];
     if (selectedImages.isEmpty || _storeId == null) {
@@ -208,7 +189,6 @@ class EditProductController extends GetxController {
     return uploadedUrls;
   }
 
-  // --- Update Product ---
   Future<void> updateProduct() async {
     if (_productId == null || _storeId == null) {
       error.value = 'معرف المنتج أو المتجر غير موجود للتحديث.';
@@ -223,10 +203,8 @@ class EditProductController extends GetxController {
     error.value = '';
 
     try {
-      // 1. Upload any newly selected images
       final List<String> newlyUploadedUrls = await _uploadNewProductImagesToCloudinary();
 
-      // 2. Combine existing (and kept) URLs with newly uploaded URLs
       final List<String> finalImageUrls = [...existingImageUrls, ...newlyUploadedUrls];
 
       if (finalImageUrls.isEmpty) {
@@ -242,13 +220,12 @@ class EditProductController extends GetxController {
         return;
       }
 
-      // 3. Update product data in Firestore
       await _firestore.collection(AppConstants.productsCollection).doc(_productId).update({
         AppConstants.nameField: nameController.text.trim(),
         AppConstants.descriptionField: descriptionController.text.trim(),
         AppConstants.priceField: productPrice,
-        AppConstants.categoryField: categoryController.text.trim(), // Save category
-        AppConstants.imagesField: finalImageUrls, // Save the combined list of image URLs
+        AppConstants.categoryField: categoryController.text.trim(),
+        AppConstants.imagesField: finalImageUrls,
         AppConstants.isAvailableField: isAvailable.value,
         AppConstants.updatedAtField: FieldValue.serverTimestamp(),
       });
@@ -258,7 +235,9 @@ class EditProductController extends GetxController {
           backgroundColor: Get.theme.colorScheme.primaryContainer,
           colorText: Get.theme.colorScheme.onPrimaryContainer);
 
-      Get.back(); // Go back to products list
+      Get.back();
+      Get.toNamed(Routes.DASHBOARD);
+
     } on DioException catch (e) {
       logger.e('Dio error during image upload/update: $e');
       error.value = 'فشل في تحميل الصورة أو تحديث البيانات: ${e.message}';
@@ -271,33 +250,5 @@ class EditProductController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // Helper to extract public ID from Cloudinary URL for deletion (if implementing backend deletion)
-  String? extractPublicIdFromCloudinaryUrl(String url) {
-    if (url.isEmpty || !url.contains('res.cloudinary.com')) return null;
-    try {
-      final uri = Uri.parse(url);
-      final segments = uri.pathSegments;
-      // Example: 'v12345/folder/subfolder/public_id.png'
-      // We want 'folder/subfolder/public_id'
-      final indexOfUpload = segments.indexOf('upload');
-      if (indexOfUpload != -1 && indexOfUpload + 1 < segments.length) {
-        // Get all segments after 'upload/' or 'vYYYYY/' (version segment)
-        final relevantSegments = segments.sublist(indexOfUpload + 1);
-        final fileNameWithExtension = relevantSegments.last;
-        final publicIdWithoutExtension = fileNameWithExtension.split('.').first;
-
-        // Reconstruct the public ID including folders
-        if (relevantSegments.length > 1) {
-          final folderPath = relevantSegments.sublist(0, relevantSegments.length - 1).join('/');
-          return '$folderPath/$publicIdWithoutExtension';
-        }
-        return publicIdWithoutExtension;
-      }
-    } catch (e) {
-      logger.e('Error extracting public ID from Cloudinary URL: $e');
-    }
-    return null;
   }
 }

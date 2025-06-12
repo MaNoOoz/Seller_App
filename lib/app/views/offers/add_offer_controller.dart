@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:file_selector/file_selector.dart'; // For XFile
 import 'package:dio/dio.dart'; // For Dio and FormData
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 
 class AddOfferController extends GetxController {
@@ -36,6 +37,7 @@ class AddOfferController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     titleController = TextEditingController();
     descriptionController = TextEditingController();
     valueController = TextEditingController();
@@ -236,6 +238,8 @@ class AddOfferController extends GetxController {
       bannerFile.value = null; // Clear selected banner image
 
       Get.back();
+      Get.toNamed(Routes.DASHBOARD);
+
     } on Exception catch (e) {
       logger.e('Error adding offer: $e');
       error.value = 'فشل في إضافة العرض: ${e.toString()}';

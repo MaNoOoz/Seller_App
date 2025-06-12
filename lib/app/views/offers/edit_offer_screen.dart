@@ -5,7 +5,6 @@ import 'dart:io'; // For File.fromUri in non-web
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List; // For web detection
 
 import '../../utils/constants.dart';
-
 import 'edit_offer_controller.dart';
 
 class EditOfferScreen extends GetView<EditOfferController> {
@@ -27,7 +26,6 @@ class EditOfferScreen extends GetView<EditOfferController> {
             return const Center(child: CircularProgressIndicator());
           }
           if (controller.error.value.isNotEmpty && controller.titleController.text.isEmpty) {
-            // Show error if data fetching failed and controllers are empty
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -84,17 +82,18 @@ class EditOfferScreen extends GetView<EditOfferController> {
                 const SizedBox(height: 20),
 
                 // --- Offer Title ---
-                TextField(
+                TextFormField(
                   controller: controller.titleController,
                   decoration: InputDecoration(
                     labelText: 'عنوان العرض',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     prefixIcon: Icon(Icons.title, color: colorScheme.primary),
                   ),
+                  validator: (value) => value?.isEmpty ?? true ? 'الرجاء إدخال عنوان العرض' : null,
                 ),
 
                 // --- Offer Description ---
-                TextField(
+                TextFormField(
                   controller: controller.descriptionController,
                   decoration: InputDecoration(
                     labelText: 'وصف العرض (اختياري)',
@@ -130,7 +129,7 @@ class EditOfferScreen extends GetView<EditOfferController> {
                     const SizedBox(width: 16),
                     Expanded(
                       flex: 1,
-                      child: TextField(
+                      child: TextFormField(
                         controller: controller.valueController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -138,6 +137,7 @@ class EditOfferScreen extends GetView<EditOfferController> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           prefixIcon: Icon(Icons.numbers, color: colorScheme.primary),
                         ),
+                        validator: (value) => (value?.isEmpty ?? true) ? 'الرجاء إدخال قيمة العرض' : null,
                       ),
                     ),
                   ],
@@ -147,13 +147,14 @@ class EditOfferScreen extends GetView<EditOfferController> {
                 GestureDetector(
                   onTap: () => controller.pickStartDate(context),
                   child: AbsorbPointer(
-                    child: TextField(
+                    child: TextFormField(
                       controller: controller.startDateController,
                       decoration: InputDecoration(
                         labelText: 'تاريخ البدء',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         prefixIcon: Icon(Icons.calendar_today, color: colorScheme.primary),
                       ),
+                      validator: (value) => value?.isEmpty ?? true ? 'الرجاء تحديد تاريخ البدء' : null,
                     ),
                   ),
                 ),
@@ -162,13 +163,14 @@ class EditOfferScreen extends GetView<EditOfferController> {
                 GestureDetector(
                   onTap: () => controller.pickEndDate(context),
                   child: AbsorbPointer(
-                    child: TextField(
+                    child: TextFormField(
                       controller: controller.endDateController,
                       decoration: InputDecoration(
                         labelText: 'تاريخ الانتهاء',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         prefixIcon: Icon(Icons.calendar_today, color: colorScheme.primary),
                       ),
+                      validator: (value) => value?.isEmpty ?? true ? 'الرجاء تحديد تاريخ الانتهاء' : null,
                     ),
                   ),
                 ),
@@ -222,13 +224,7 @@ class EditOfferScreen extends GetView<EditOfferController> {
 
   // Helper function to get image bytes from XFile for web display
   Uint8List _getImageBytes(XFile xFile) {
-    // This is a synchronous placeholder. In a real app, you'd load bytes asynchronously.
-    // For direct display from XFile, you might need to use `MemoryImage` after `readAsBytes`.
-    // Or, if using `Image.network` you'd upload and get the URL first.
-    // Here, we just display it if it's already in bytes (for web case from pickBannerImage).
-    // The `MemoryImage` directly accepts bytes, so this should work.
-    return Uint8List.fromList([]); // Placeholder, actual bytes would be loaded in controller or passed.
-    // For displaying the selected XFile, you'd usually use `MemoryImage(await xFile.readAsBytes())`
-    // but `Obx` with `MemoryImage` directly in `image` property will handle it.
+    // Using MemoryImage for web with bytes
+    return Uint8List.fromList([]); // Placeholder for actual byte fetching from the file
   }
 }

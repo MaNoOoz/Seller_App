@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart'; // For date formatting
 
-
 import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 import 'offers_list_controller.dart'; // For AppConstants

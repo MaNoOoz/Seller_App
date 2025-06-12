@@ -8,6 +8,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:dio/dio.dart'; // For Dio and FormData
 import 'package:flutter/foundation.dart' show kIsWeb; // For web detection
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 import '../../utils/app_colors.dart'; // For snackbar colors
 
@@ -18,11 +19,11 @@ class EditOfferController extends GetxController {
   var isLoading = false.obs;
   var error = ''.obs;
 
-  // Offer ID passed to this controller
+  // Offer ID and Store ID passed to this controller
   String? _offerId;
-  String? _storeId; // Needed for consistency, as offers belong to a store
+  String? _storeId;
 
-  // New: For banner image
+  // For banner image
   var bannerFile = Rx<XFile?>(null); // New selected file
   var existingBannerUrl = ''.obs; // URL of the currently saved banner
 
@@ -34,7 +35,6 @@ class EditOfferController extends GetxController {
   late TextEditingController endDateController;
 
   var selectedOfferType = 'percentage'.obs; // Default value
-
   DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
 
@@ -47,16 +47,15 @@ class EditOfferController extends GetxController {
     startDateController = TextEditingController();
     endDateController = TextEditingController();
 
-    // Get offerId and storeId from arguments
+    // Fetch the offer details
     if (Get.arguments != null && Get.arguments is Map) {
       _offerId = Get.arguments['offerId'] as String?;
-      _storeId = Get.arguments['storeId'] as String?; // Pass storeId for consistency
+      _storeId = Get.arguments['storeId'] as String?;
 
       if (_offerId != null) {
         fetchOfferDetails(_offerId!);
       } else {
         error.value = 'معرف العرض غير متوفر.';
-        isLoading.value = false;
         logger.e('EditOfferController: Offer ID is null in arguments.');
       }
 
@@ -66,7 +65,6 @@ class EditOfferController extends GetxController {
       }
     } else {
       error.value = 'لا توجد بيانات عرض لتعديلها.';
-      isLoading.value = false;
       logger.e('EditOfferController: No arguments passed.');
     }
   }
@@ -82,13 +80,12 @@ class EditOfferController extends GetxController {
     super.onClose();
   }
 
-  // --- Fetch Offer Details ---
+  // Fetch Offer Details from Firestore
   Future<void> fetchOfferDetails(String offerId) async {
     isLoading.value = true;
     error.value = '';
     try {
-      final DocumentSnapshot doc =
-      await _firestore.collection(AppConstants.offersCollection).doc(offerId).get();
+      final DocumentSnapshot doc = await _firestore.collection(AppConstants.offersCollection).doc(offerId).get();
 
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
@@ -98,7 +95,6 @@ class EditOfferController extends GetxController {
         selectedOfferType.value = data[AppConstants.offerTypeField] ?? 'percentage';
         existingBannerUrl.value = data[AppConstants.offerBannerImageUrlField] ?? '';
 
-        // Dates
         final Timestamp? startDateTimestamp = data[AppConstants.offerStartDateField];
         final Timestamp? endDateTimestamp = data[AppConstants.offerEndDateField];
 
@@ -110,6 +106,7 @@ class EditOfferController extends GetxController {
           _selectedEndDate = endDateTimestamp.toDate();
           endDateController.text = _formatDate(_selectedEndDate!);
         }
+
         logger.d('Offer details loaded for $offerId');
       } else {
         error.value = 'لم يتم العثور على بيانات العرض.';
@@ -123,7 +120,7 @@ class EditOfferController extends GetxController {
     }
   }
 
-  // --- Date Picker Methods ---
+  // Date Picker Methods
   Future<void> pickStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -141,7 +138,7 @@ class EditOfferController extends GetxController {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedEndDate ?? _selectedStartDate ?? DateTime.now(),
-      firstDate: _selectedStartDate ?? DateTime(2000), // End date cannot be before start date
+      firstDate: _selectedStartDate ?? DateTime(2000),
       lastDate: DateTime(2101),
     );
     if (picked != null && picked != _selectedEndDate) {
@@ -154,7 +151,7 @@ class EditOfferController extends GetxController {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  // --- Image Picker ---
+  // Image Picker for Banner Image
   Future<void> pickBannerImage() async {
     final typeGroup = XTypeGroup(label: 'images', extensions: ['png', 'jpg', 'jpeg']);
     final result = await openFile(acceptedTypeGroups: [typeGroup]);
@@ -164,7 +161,7 @@ class EditOfferController extends GetxController {
     }
   }
 
-  // --- Cloudinary Upload for Banner Image (copied from your AddOfferController) ---
+  // Cloudinary Upload for Banner Image
   Future<String?> _uploadBannerImageToCloudinary(XFile file, String storeId) async {
     final String cloudinaryFolder = '${AppConstants.offerBannersFolder}/$storeId'; // Specific folder for offer banners
 
@@ -219,7 +216,7 @@ class EditOfferController extends GetxController {
     }
   }
 
-  // --- Update Offer ---
+  // Update Offer
   Future<void> updateOffer() async {
     if (_offerId == null) {
       error.value = 'معرف العرض غير موجود للتحديث.';
@@ -239,7 +236,6 @@ class EditOfferController extends GetxController {
       return;
     }
 
-
     isLoading.value = true;
     error.value = '';
     String? bannerImageUrl = existingBannerUrl.value; // Start with existing URL
@@ -247,26 +243,6 @@ class EditOfferController extends GetxController {
     try {
       // 1. Upload new banner image if selected
       if (bannerFile.value != null) {
-        // --- IMPORTANT: Cloudinary Deletion ---
-        // For secure and reliable deletion of old images from Cloudinary,
-        // it is strongly recommended to implement a backend function (e.g., Firebase Cloud Function)
-        // that handles signed deletion requests. Client-side deletion is insecure for signed uploads.
-        // If you are using unsigned uploads, you typically don't delete from the client directly.
-        //
-        // For now, if a new image is uploaded, we'll replace the URL.
-        // You might consider a separate cleanup process or a backend for old images.
-        logger.w('Cloudinary image deletion should ideally be handled by a secure backend.');
-        // If you had a CloudinaryService.deleteImage method (which needs a backend), it would look like:
-        // if (existingBannerUrl.value.isNotEmpty) {
-        //   // You'd need to extract the public_id from existingBannerUrl.value
-        //   final publicId = extractPublicIdFromCloudinaryUrl(existingBannerUrl.value);
-        //   if (publicId != null) {
-        //     await CloudinaryService().deleteImage(publicId);
-        //     logger.d('Old banner image marked for deletion: $publicId');
-        //   }
-        // }
-
-
         bannerImageUrl = await _uploadBannerImageToCloudinary(bannerFile.value!, _storeId!);
         if (bannerImageUrl == null) {
           isLoading.value = false;
@@ -299,7 +275,6 @@ class EditOfferController extends GetxController {
         return;
       }
 
-
       // 2. Update offer data in Firestore
       await _firestore.collection(AppConstants.offersCollection).doc(_offerId).update({
         AppConstants.offerTitleField: titleController.text.trim(),
@@ -309,15 +284,16 @@ class EditOfferController extends GetxController {
         AppConstants.offerStartDateField: Timestamp.fromDate(_selectedStartDate!),
         AppConstants.offerEndDateField: Timestamp.fromDate(_selectedEndDate!),
         AppConstants.offerBannerImageUrlField: bannerImageUrl, // Save new or existing URL
-        // offerIsActiveField could be updated if you add a toggle in the UI
       });
 
       Get.snackbar('نجاح', 'تم تحديث العرض بنجاح',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.colorScheme.primaryContainer, // Using current theme
-          colorText: Get.theme.colorScheme.onPrimaryContainer); // Using current theme
+          backgroundColor: Get.theme.colorScheme.primaryContainer,
+          colorText: Get.theme.colorScheme.onPrimaryContainer);
 
       Get.back(); // Go back to offers list
+      Get.toNamed(Routes.DASHBOARD);
+
     } on DioException catch (e) {
       logger.e('Dio error during image upload/update: $e');
       error.value = 'فشل في تحميل الصورة أو تحديث البيانات: ${e.message}';
@@ -330,34 +306,5 @@ class EditOfferController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // Helper to extract public ID from Cloudinary URL for deletion (if needed)
-  // This is a basic example; a more robust solution might use regex.
-  String? extractPublicIdFromCloudinaryUrl(String url) {
-    if (url.isEmpty || !url.contains('res.cloudinary.com')) return null;
-    try {
-      final uri = Uri.parse(url);
-      final segments = uri.pathSegments;
-      // Example: 'v12345/folder/subfolder/public_id.png'
-      // We want 'folder/subfolder/public_id'
-      final indexOfUpload = segments.indexOf('upload');
-      if (indexOfUpload != -1 && indexOfUpload + 1 < segments.length) {
-        // Get all segments after 'upload/' or 'vYYYYY/' (version segment)
-        final relevantSegments = segments.sublist(indexOfUpload + 1);
-        final fileNameWithExtension = relevantSegments.last;
-        final publicIdWithoutExtension = fileNameWithExtension.split('.').first;
-
-        // Reconstruct the public ID including folders
-        if (relevantSegments.length > 1) {
-          final folderPath = relevantSegments.sublist(0, relevantSegments.length - 1).join('/');
-          return '$folderPath/$publicIdWithoutExtension';
-        }
-        return publicIdWithoutExtension;
-      }
-    } catch (e) {
-      logger.e('Error extracting public ID from Cloudinary URL: $e');
-    }
-    return null;
   }
 }

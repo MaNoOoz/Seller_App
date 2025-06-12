@@ -5,7 +5,6 @@ import 'package:logger/logger.dart';
 import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 
-
 class OffersListController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Logger logger = Logger();
@@ -40,11 +39,11 @@ class OffersListController extends GetxController {
     }
 
     isLoading.value = true;
-    error.value = '';
+    error.value = ''; // Reset error message before fetching
 
     // Listen to real-time updates from Firestore
     _firestore
-        .collection(AppConstants.offersCollection) // Use constants
+        .collection(AppConstants.offersCollection) // Use constants for collection name
         .where(AppConstants.storeIdField, isEqualTo: _storeId) // Filter by store ID
         .orderBy(AppConstants.createdAtField, descending: true) // Order by creation date
         .snapshots() // Get a stream of query snapshots

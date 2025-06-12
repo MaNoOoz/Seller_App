@@ -28,8 +28,17 @@ class EditStoreController extends GetxController {
   late TextEditingController phoneController;
   late TextEditingController cityController;
   late TextEditingController locationController;
-  final RxList<MapEntry<TextEditingController, TextEditingController>> socialControllers =
-      <MapEntry<TextEditingController, TextEditingController>>[].obs;
+
+  // Social Media Platforms
+  var socialPlatforms = [
+    'Facebook', 'Twitter', 'Instagram', 'LinkedIn', 'WhatsApp',
+    'YouTube', 'TikTok', 'Snapchat', 'Pinterest', 'Reddit', 'Telegram', 'Discord', 'GitHub'
+  ].obs;  // List of supported platforms
+
+
+  var selectedPlatform = ''.obs; // Platform selected by user
+  final RxList<MapEntry<String, TextEditingController>> socialControllers = <MapEntry<String, TextEditingController>>[].obs;
+
 
   String? _storeDocId; // The ID of the current store document
 
@@ -45,8 +54,8 @@ class EditStoreController extends GetxController {
     logger.d('EditStoreController: onInit called.'); // <-- Add this
 
     // Check if a storeId was passed as an argument
-    if (Get.arguments != null && Get.arguments is Map && Get.arguments['shopId'] != null) {
-      _storeDocId = Get.arguments['shopId'] as String;
+    if (Get.arguments != null && Get.arguments is Map && Get.arguments['${AppConstants.storeIdField}'] != null) {
+      _storeDocId = Get.arguments['${AppConstants.storeIdField}'] as String;
       fetchStoreDataById(_storeDocId!); // Fetch data using the provided ID
     } else {
       logger.d('EditStoreController: No shopId argument found, fetching by UID.'); // <-- Add this
@@ -65,7 +74,7 @@ class EditStoreController extends GetxController {
     cityController.dispose();
     locationController.dispose();
     for (var entry in socialControllers) {
-      entry.key.dispose();
+      // entry.key.dispose();
       entry.value.dispose();
     }
     socialControllers.close(); // Dispose RxList
@@ -73,22 +82,28 @@ class EditStoreController extends GetxController {
     currentLogoUrl.close(); // Dispose Rx
     super.onClose();
   }
-
+  // --- Add Social Link ---
+  void addSocialLink() {
+    if (selectedPlatform.value.isNotEmpty) {
+      socialControllers.add(MapEntry(selectedPlatform.value, TextEditingController()));
+    }
+  }
+  // --- Remove Social Link ---
+  void removeSocialLink(int index) {
+    socialControllers.removeAt(index);
+  }
   // --- Data Fetching by Document ID ---
+  // --- Fetch Store Data ---
   Future<void> fetchStoreDataById(String docId) async {
     isLoading.value = true;
     error.value = '';
-    logger.d('Fetching store data by ID: $docId'); // <-- Add this
-
     try {
       final DocumentSnapshot doc = await _firestore.collection('stores').doc(docId).get();
 
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
-        _storeDocId = doc.id; // Confirm or set the doc ID
-        logger.d('Store data found for ID: $_storeDocId, Name: ${data['name']}'); // <-- Add this
+        _storeDocId = doc.id; // Set the doc ID
 
-        // Populate controllers with existing data
         nameController.text = data['name'] ?? '';
         descriptionController.text = data['description'] ?? '';
         phoneController.text = data['phone'] ?? '';
@@ -97,31 +112,21 @@ class EditStoreController extends GetxController {
         currentLogoUrl.value = data['logo_url'] ?? ''; // Display current logo
 
         // Populate social links
-        final Map<String, dynamic>? socialMap = data['social'] is Map
-            ? (data['social'] as Map<String, dynamic>)
-            : null;
+        final Map<String, dynamic>? socialMap = data['social'] is Map ? (data['social'] as Map<String, dynamic>) : null;
         if (socialMap != null) {
           socialControllers.clear(); // Clear existing if any
           socialMap.forEach((key, value) {
-            socialControllers.add(
-              MapEntry(TextEditingController(text: key), TextEditingController(text: value)),
-            );
+            socialControllers.add(MapEntry(key, TextEditingController(text: value)));
           });
         }
       } else {
         error.value = 'لم يتم العثور على بيانات المتجر بالمعرف المحدد.';
-        logger.w('Store not found for ID: $docId'); // <-- Add this
-
-        // Optionally, try to find by UID as a last resort if ID was somehow wrong
         fetchStoreDataByUid(); // Fallback to UID search
       }
     } catch (e) {
-      logger.e('Error fetching store data by ID: $e');
       error.value = 'فشل في جلب بيانات المتجر بالمعرف: ${e.toString()}';
     } finally {
       isLoading.value = false;
-      logger.d('Finished fetching store data by ID. isLoading: ${isLoading.value}'); // <-- Add this
-
     }
   }
 
@@ -162,7 +167,7 @@ class EditStoreController extends GetxController {
           socialControllers.clear(); // Clear existing if any
           socialMap.forEach((key, value) {
             socialControllers.add(
-              MapEntry(TextEditingController(text: key), TextEditingController(text: value)),
+              MapEntry(key, TextEditingController(text: value)),
             );
           });
         }
@@ -274,7 +279,7 @@ class EditStoreController extends GetxController {
       // Prepare social links map
       final Map<String, String> socialLinksMap = {};
       for (var entry in socialControllers) {
-        final key = entry.key.text.trim();
+        final key = entry.key.trim();
         final value = entry.value.text.trim();
         if (key.isNotEmpty && value.isNotEmpty) {
           socialLinksMap[key] = value;
@@ -298,6 +303,9 @@ class EditStoreController extends GetxController {
           colorText: Get.theme.colorScheme.onPrimaryContainer);
 
       Get.back(); // Go back to Dashboard after successful update
+      Get.toNamed(Routes.DASHBOARD);
+
+      Get.toNamed(Routes.DASHBOARD);
     } on Exception catch (e) {
       logger.e('Error updating store: $e');
       error.value = e.toString();
@@ -310,15 +318,9 @@ class EditStoreController extends GetxController {
   }
 
   // --- Social Links Management ---
-  void addSocialLink() {
-    socialControllers.add(MapEntry(TextEditingController(), TextEditingController()));
-  }
 
-  void removeSocialLink(int index) {
-    socialControllers[index].key.dispose(); // Dispose controllers
-    socialControllers[index].value.dispose();
-    socialControllers.removeAt(index);
-  }
+
+
 
   // --- Product/Offer Navigation Placeholders ---
   void goToAddProduct() {

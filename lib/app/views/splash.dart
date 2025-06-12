@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
         // } else {
         //   Get.offAllNamed(Routes.CREATE_STORE);
         // }
-        Get.offAllNamed(Routes.DASHBOARD); // Default to dashboard for now
+        Get.offNamed(Routes.DASHBOARD); // Default to dashboard for now
       }
     });
   }

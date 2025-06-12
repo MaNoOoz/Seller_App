@@ -6,6 +6,13 @@ import 'package:get/get.dart';
 import '../../routes/app_pages.dart';
 import '../../utils/constants.dart'; // For routes
 
+import 'package:app/app/views/products/products_list_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../routes/app_pages.dart';
+import '../../utils/constants.dart'; // For routes
+
 class ProductsListScreen extends GetView<ProductsListController> {
   const ProductsListScreen({super.key});
 
@@ -23,10 +30,6 @@ class ProductsListScreen extends GetView<ProductsListController> {
             icon: const Icon(Icons.add_shopping_cart),
             onPressed: () {
               // Navigate to AddProductScreen, passing the storeId
-              // The storeId is typically available in the controller from arguments
-              // and should be passed to the next screen if needed.
-              // For simplicity, we'll assume AddProductController can get it from DashboardController if needed,
-              // or you can explicitly pass it here:
               final String? storeId = Get.arguments != null && Get.arguments is Map ? Get.arguments['storeId'] as String? : null;
               if (storeId != null) {
                 Get.toNamed(Routes.ADD_PRODUCT, arguments: {'storeId': storeId});
@@ -39,10 +42,12 @@ class ProductsListScreen extends GetView<ProductsListController> {
       ),
       body: Obx(
             () {
+          // Show loading indicator if still loading
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Show error message if there is an error
           if (controller.error.value.isNotEmpty) {
             return Center(
               child: Padding(
@@ -56,6 +61,7 @@ class ProductsListScreen extends GetView<ProductsListController> {
             );
           }
 
+          // Show empty products message if no products are found
           if (controller.products.isEmpty) {
             return Center(
               child: Column(
@@ -78,17 +84,18 @@ class ProductsListScreen extends GetView<ProductsListController> {
             );
           }
 
+          // Render the products list
           return ListView.builder(
             itemCount: controller.products.length,
             itemBuilder: (context, index) {
               final product = controller.products[index];
-              final String productId = product['id']; // Document ID
+              final String productId = product['productId'] ?? ''; // Safely handle missing ID
               final String name = product[AppConstants.nameField] ?? 'لا يوجد اسم';
               final String description = product[AppConstants.descriptionField] ?? 'لا يوجد وصف';
               final double price = (product[AppConstants.priceField] ?? 0.0).toDouble();
               final String category = product[AppConstants.categoryField] ?? 'غير مصنف';
               final List<dynamic> images = product[AppConstants.imagesField] ?? [];
-              final String imageUrl = images.isNotEmpty ? images[0] : 'https://via.placeholder.com/150'; // Default image
+              final String imageUrl = images.isNotEmpty ? images[0] : 'https://via.placeholder.com/150'; // Fallback image
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -99,6 +106,7 @@ class ProductsListScreen extends GetView<ProductsListController> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Display image with fallback
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
@@ -119,6 +127,7 @@ class ProductsListScreen extends GetView<ProductsListController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Name of the product with ellipsis for overflow
                             Text(
                               name,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -126,11 +135,13 @@ class ProductsListScreen extends GetView<ProductsListController> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
+                            // Category info
                             Text(
                               'الفئة: $category',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                             ),
                             const SizedBox(height: 4),
+                            // Price info with formatted currency style
                             Text(
                               'السعر: \$${price.toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -139,6 +150,7 @@ class ProductsListScreen extends GetView<ProductsListController> {
                               ),
                             ),
                             const SizedBox(height: 8),
+                            // Description with ellipsis for overflow
                             Text(
                               description,
                               style: Theme.of(context).textTheme.bodySmall,
@@ -150,11 +162,13 @@ class ProductsListScreen extends GetView<ProductsListController> {
                       ),
                       Column(
                         children: [
+                          // Edit button for the product
                           IconButton(
                             icon: Icon(Icons.edit, color: colorScheme.secondary),
                             onPressed: () => controller.goToEditProduct(productId),
                             tooltip: 'تعديل المنتج',
                           ),
+                          // Delete button with confirmation dialog
                           IconButton(
                             icon: Icon(Icons.delete, color: colorScheme.error),
                             onPressed: () => Get.defaultDialog(

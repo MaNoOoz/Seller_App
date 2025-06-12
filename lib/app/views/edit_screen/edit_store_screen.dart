@@ -1,17 +1,13 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'edit_store_controller.dart';
 
-
-class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetView
+class EditStoreScreen extends GetView<EditStoreController> {
   const EditStoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Access the controller directly using `controller`
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -23,7 +19,6 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
       body: Obx(
             () {
           if (controller.isLoading.value && controller.nameController.text.isEmpty) {
-            // Show full screen loader only when initial data is loading
             return const Center(child: CircularProgressIndicator());
           }
           if (controller.error.value.isNotEmpty) {
@@ -49,11 +44,11 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Logo Section
                 Center(
                   child: GestureDetector(
                     onTap: controller.pickLogo,
                     child: Obx(() {
-                      // Display selected new logo or current logo from Firestore
                       if (controller.logoFile.value != null) {
                         return FutureBuilder<Uint8List>(
                           future: controller.logoFile.value!.readAsBytes(),
@@ -102,6 +97,8 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // Store Name
                 TextField(
                   controller: controller.nameController,
                   decoration: InputDecoration(
@@ -111,6 +108,8 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Store Description
                 TextField(
                   controller: controller.descriptionController,
                   decoration: InputDecoration(
@@ -121,6 +120,8 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   maxLines: 3,
                 ),
                 const SizedBox(height: 16),
+
+                // Store Phone Number
                 TextField(
                   controller: controller.phoneController,
                   decoration: InputDecoration(
@@ -131,6 +132,8 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 16),
+
+                // City
                 TextField(
                   controller: controller.cityController,
                   decoration: InputDecoration(
@@ -140,6 +143,8 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Detailed Location
                 TextField(
                   controller: controller.locationController,
                   decoration: InputDecoration(
@@ -156,8 +161,34 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
-                Obx(
-                      () => Column(
+
+                // Social Platform Dropdown
+                DropdownButton<String>(
+                  value: controller.selectedPlatform.value.isEmpty ? null : controller.selectedPlatform.value,
+                  hint: Text('اختار منصة التواصل الاجتماعي'),
+                  isExpanded: true,
+                  items: controller.socialPlatforms.map((String platform) {
+                    return DropdownMenuItem<String>(
+                      value: platform,
+                      child: Text(platform),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    controller.selectedPlatform.value = value ?? '';
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // Add Social Link Button
+                ElevatedButton(
+                  onPressed: controller.addSocialLink,
+                  child: const Text('إضافة رابط تواصل اجتماعي'),
+                ),
+                const SizedBox(height: 16),
+
+                // List of Social Links
+                Obx(() {
+                  return Column(
                     children: controller.socialControllers.asMap().entries.map((entry) {
                       final index = entry.key;
                       final controllers = entry.value;
@@ -165,17 +196,7 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           children: [
-                            Expanded(
-                              flex: 2,
-                              child: TextField(
-                                controller: controllers.key,
-                                decoration: InputDecoration(
-                                  labelText: 'المنصة (مثال: فيسبوك)',
-                                  border: const OutlineInputBorder(),
-                                  isDense: true,
-                                ),
-                              ),
-                            ),
+                            Text(controllers.key, style: TextStyle(fontWeight: FontWeight.bold)),
                             const SizedBox(width: 8),
                             Expanded(
                               flex: 3,
@@ -197,16 +218,9 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                         ),
                       );
                     }).toList(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft, // Align button to left in RTL
-                  child: TextButton.icon(
-                    onPressed: controller.addSocialLink,
-                    icon: Icon(Icons.add, color: colorScheme.primary),
-                    label: Text('إضافة رابط جديد', style: TextStyle(color: colorScheme.primary)),
-                  ),
-                ),
+                  );
+                }),
+
                 const SizedBox(height: 32),
 
                 // --- Management Sections ---
@@ -232,32 +246,23 @@ class EditStoreScreen extends GetView<EditStoreController> { // <--- Using GetVi
                 const SizedBox(height: 32),
 
                 // --- Save Button ---
-                Obx(
-                      () => Center(
-                    child: ElevatedButton.icon(
-                      onPressed: controller.isLoading.value ? null : controller.updateStore,
-                      icon: controller.isLoading.value
-                          ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
-                        ),
-                      )
-                          : Icon(Icons.save, color: colorScheme.onPrimary),
-                      label: Text(
-                        controller.isLoading.value ? 'جاري الحفظ...' : 'حفظ التغييرات',
-                        style: TextStyle(color: colorScheme.onPrimary),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                Obx(() => Center(
+                  child: ElevatedButton.icon(
+                    onPressed: controller.isLoading.value ? null : controller.updateStore,
+                    icon: controller.isLoading.value
+                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator())
+                        : Icon(Icons.save, color: colorScheme.onPrimary),
+                    label: Text(
+                      controller.isLoading.value ? 'جاري الحفظ...' : 'حفظ التغييرات',
+                      style: TextStyle(color: colorScheme.onPrimary),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 20),
                 Obx(() {
                   if (controller.error.value.isNotEmpty) {

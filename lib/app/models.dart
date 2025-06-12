@@ -66,8 +66,8 @@ class StoreModel {
       announcementMessage: map['announcement_message'] as String? ?? '',
       announcementActive: map['announcement_active'] as bool? ?? false,
       createdBy: map['created_by'] as String? ?? '',
-      createdAt: map['createdAt'] as Timestamp? ?? Timestamp.now(),
-      updatedAt: map['updatedAt'] as Timestamp?, // يمكن أن يكون null
+      createdAt: map['created_at'] as Timestamp? ?? Timestamp.now(),
+      updatedAt: map['updated_at'] as Timestamp?, // يمكن أن يكون null
       status: map['status'] as String? ?? 'active',
     );
   }
@@ -89,8 +89,8 @@ class StoreModel {
       'announcement_message': announcementMessage,
       'announcement_active': announcementActive,
       'created_by': createdBy,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt, // يمكن أن يكون null، Firestore سيتجاهل ذلك إذا كان كذلك
+      'created_at': createdAt,
+      'updated_at': updatedAt, // يمكن أن يكون null، Firestore سيتجاهل ذلك إذا كان كذلك
       'status': status,
     };
   }

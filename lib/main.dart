@@ -1,9 +1,14 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'app/utils/constants.dart';
 import 'app/utils/theme_service.dart';
 import 'app/utils/app_themes.dart'; // Import the new AppThemes class
 import 'firebase_options.dart';
@@ -41,8 +46,10 @@ class MyApp extends StatelessWidget {
 
       // Theme configuration now references AppThemes class
       themeMode: themeService.themeMode,
-      theme: AppThemes.lightTheme, // Use the light theme from AppThemes
-      darkTheme: AppThemes.darkTheme, // Use the dark theme from AppThemes
+      theme: AppThemes.lightTheme,
+      // Use the light theme from AppThemes
+      darkTheme: AppThemes.darkTheme,
+      // Use the dark theme from AppThemes
 
       locale: const Locale('ar', 'AE'),
       fallbackLocale: const Locale('en', 'US'),
@@ -57,4 +64,7 @@ class MyApp extends StatelessWidget {
       ],
     );
   }
+
+
+// }
 }

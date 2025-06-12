@@ -1,4 +1,5 @@
-// auth_controller.dart
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,8 +7,9 @@ import 'package:logger/logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../routes/app_pages.dart';
-// Assuming you have a 'NoAccessScreen' or similar
-import '../views/no_access_screen.dart'; // <--- NEW SCREEN IMPORT
+import '../testers.dart';
+import '../utils/constants.dart';
+import '../views/no_access_screen.dart'; // New screen import
 
 class AuthController extends GetxController {
   var isLoading = false.obs;
@@ -17,7 +19,9 @@ class AuthController extends GetxController {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
-  void onInit() {
+  void onInit() async {
+    // await methodTset().generateTestStoreForCurrentUser();
+
     super.onInit();
     auth.authStateChanges().listen((User? user) async {
       if (user == null) {
@@ -27,21 +31,21 @@ class AuthController extends GetxController {
         logger.d('المستخدم مسجل الدخول: ${user.uid}');
         bool hasStore = await _checkIfUserHasStore(user.uid);
         if (hasStore) {
-          Get.offAllNamed(Routes.DASHBOARD);
+          Get.offNamed(Routes.DASHBOARD);
         } else {
-          // *** CRITICAL CHANGE HERE ***
-          // If the user logs in but doesn't have a store,
-          // they should be redirected to a screen indicating no access/store assigned.
-          Get.offAllNamed(Routes.NO_ACCESS); // <--- NEW ROUTE
+          // If the user doesn't have a store, redirect to no access screen
+          Get.offNamed(Routes.NO_ACCESS); // Redirect to the NO_ACCESS route
         }
       }
     });
+
   }
+
 
   Future<bool> _checkIfUserHasStore(String uid) async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('stores') // Use 'stores'
+          .collection(AppConstants.storesCollection) // Use the stores collection constant
           .where('created_by', isEqualTo: uid) // Use 'created_by'
           .limit(1)
           .get();
@@ -57,11 +61,11 @@ class AuthController extends GetxController {
     error.value = '';
     try {
       await auth.signInWithEmailAndPassword(email: email, password: password);
-      // Navigation is now handled by the authStateChanges listener in onInit
+      // Navigation handled by authStateChanges listener in onInit
     } on FirebaseAuthException catch (e) {
       error.value = e.message ?? 'حدث خطأ عند تسجيل الدخول';
     } catch (e) {
-      error.value = e.toString();
+      error.value = 'حدث خطأ غير متوقع: $e';
     } finally {
       isLoading.value = false;
     }
@@ -75,11 +79,12 @@ class AuthController extends GetxController {
         email: email,
         password: password,
       );
-      // After registration, the user is automatically logged in.
-      // The authStateChanges listener will trigger, check for store,
-      // and then route to NO_ACCESS (since they won't have a store yet).
+      // After registration, the authStateChanges listener will trigger,
+      // check for store, and then route to NO_ACCESS.
     } on FirebaseAuthException catch (e) {
       error.value = e.message ?? 'حدث خطأ عند إنشاء الحساب';
+    } catch (e) {
+      error.value = 'حدث خطأ غير متوقع: $e';
     } finally {
       isLoading.value = false;
     }
@@ -92,6 +97,7 @@ class AuthController extends GetxController {
       // Navigation handled by authStateChanges listener
     } catch (e) {
       logger.e('Error during logout: $e');
+      error.value = 'حدث خطأ عند تسجيل الخروج: $e';
     } finally {
       isLoading.value = false;
     }

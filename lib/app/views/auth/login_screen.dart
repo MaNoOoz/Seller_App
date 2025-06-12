@@ -37,12 +37,12 @@ class LoginScreen extends StatelessWidget {
               child: Text('دخول'),
             ),
             SizedBox(height: 24),
-            TextButton(
-              onPressed: () {
-                Get.toNamed(Routes.REGISTER);
-              },
-              child: Text('ليس لديك حساب؟ سجل الآن'),
-            ),
+            // TextButton(
+            //   onPressed: () {
+            //     Get.toNamed(Routes.REGISTER);
+            //   },
+            //   child: Text('ليس لديك حساب؟ سجل الآن'),
+            // ),
             Obx(() {
               if (authController.isLoading.value) {
                 return Padding(

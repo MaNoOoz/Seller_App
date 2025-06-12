@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData;
 import 'package:file_selector/file_selector.dart';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart';
 
 class AddProductController extends GetxController {
@@ -22,11 +24,42 @@ class AddProductController extends GetxController {
   late TextEditingController priceController;
   late TextEditingController categoryController;
 
-  String? _storeId; // This is populated in onInit
+  String? _storeId; // Store ID to be populated in onInit
+  // testing
+  Future<void> generateRandomProductsAndOffers(String storeId) async {
+    List<String> productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4', 'Product 5'];
+    List<String> categories = ['Category A', 'Category B', 'Category C'];
+    List<String> offerTitles = ['Offer 1', 'Offer 2', 'Offer 3', 'Offer 4', 'Offer 5'];
+
+    // Generate random products
+    for (var i = 0; i < 5; i++) {
+      await _firestore.collection(AppConstants.productsCollection).add({
+        AppConstants.nameField: productNames[i],
+        AppConstants.descriptionField: 'Description for ${productNames[i]}',
+        AppConstants.priceField: (i + 1) * 10.0,
+        AppConstants.categoryField: categories[i % 3],
+        AppConstants.storeIdField: storeId,
+        AppConstants.createdAtField: FieldValue.serverTimestamp(),
+        AppConstants.isAvailableField: true,
+      });
+    }
+
+    // Generate random offers
+    for (var i = 0; i < 5; i++) {
+      await _firestore.collection(AppConstants.offersCollection).add({
+        AppConstants.offerTitleField: offerTitles[i],
+        AppConstants.offerDescriptionField: 'Description for ${offerTitles[i]}',
+        AppConstants.storeIdField: storeId,
+        AppConstants.createdAtField: FieldValue.serverTimestamp(),
+        AppConstants.offerIsActiveField: true,
+      });
+    }
+  }
 
   @override
   void onInit() {
     super.onInit();
+    // generateRandomProductsAndOffers("RcVKmNMF374n40X7Ok9o");
     nameController = TextEditingController();
     descriptionController = TextEditingController();
     priceController = TextEditingController();
@@ -60,18 +93,14 @@ class AddProductController extends GetxController {
     }
   }
 
-  // --- MODIFIED: Cloudinary Upload (Multiple Images with Folder) ---
+  // --- Modified: Cloudinary Upload (Multiple Images) ---
   Future<List<String>?> _uploadImagesToCloudinary(List<XFile> files) async {
-    // Ensure _storeId is available before attempting to upload
     if (_storeId == null) {
       error.value = 'خطأ: معرف المتجر غير متوفر لرفع الصور.';
       return null;
     }
 
-    // Define the folder structure based on the store ID
-    // Example: "products/YOUR_STORE_ID"
-    final String cloudinaryFolder = '${AppConstants.productsCollection}/$_storeId'; // Using productsCollection constant
-
+    final String cloudinaryFolder = '${AppConstants.productsCollection}/$_storeId';
     List<String> uploadedUrls = [];
     final dio = Dio();
 
@@ -81,7 +110,7 @@ class AddProductController extends GetxController {
         Uint8List? fileBytes;
         String? filePath;
 
-        if (GetPlatform.isWeb || GetPlatform.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux) {
+        if (kIsWeb || GetPlatform.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux) {
           fileBytes = await file.readAsBytes();
         } else if (GetPlatform.isAndroid || GetPlatform.isIOS) {
           filePath = file.path;
@@ -93,13 +122,13 @@ class AddProductController extends GetxController {
           formData = FormData.fromMap({
             'file': MultipartFile.fromBytes(fileBytes, filename: file.name),
             'upload_preset': AppConstants.cloudinaryUploadPreset,
-            'folder': cloudinaryFolder, // <--- ADDED: Specify the folder
+            'folder': cloudinaryFolder,
           });
         } else if (filePath != null) {
           formData = FormData.fromMap({
             'file': await MultipartFile.fromFile(filePath, filename: file.name),
             'upload_preset': AppConstants.cloudinaryUploadPreset,
-            'folder': cloudinaryFolder, // <--- ADDED: Specify the folder
+            'folder': cloudinaryFolder,
           });
         } else {
           throw Exception('No file data available for upload.');
@@ -189,12 +218,11 @@ class AddProductController extends GetxController {
       imageUrls.clear();
 
       Get.back();
-    } on Exception catch (e) {
+      Get.toNamed(Routes.DASHBOARD);
+
+    } catch (e) {
       logger.e('Error adding product: $e');
       error.value = 'فشل في إضافة المنتج: ${e.toString()}';
-    } catch (e) {
-      logger.e('Unexpected error adding product: $e');
-      error.value = 'حدث خطأ غير متوقع: ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
