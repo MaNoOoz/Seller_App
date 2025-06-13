@@ -37,9 +37,7 @@ flutter:
     - assets/icons/
   # Add your custom fonts here
   fonts:
-    - family: Almarai # This is the font family name you will use in your code
+    - family: IBMPlexSansArabic
       fonts:
-        - asset: assets/fonts/Almarai-Regular.ttf
-        - asset: assets/fonts/Almarai-Bold.ttf # If you have other weights
-          weight: 700 # Specify weight if it's a different style of the same family
-        # Add more font files for different weights/styles if available
+        - asset: assets/fonts/ibm_plex/IBMPlexSansArabic-Bold.ttf
+          weight: 700
