@@ -21,7 +21,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   await GetStorage.init(); // Initialize GetStorage for ThemeService
 
   // Initialize AuthController and ThemeService
