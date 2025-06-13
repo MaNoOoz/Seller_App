@@ -103,7 +103,7 @@ class AppThemes {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
       ),
     ),
-    fontFamily: 'Almarai',
+    fontFamily: 'IbmPlexSansArabic',
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.primaryLight,
       foregroundColor: AppColors.onPrimaryLight,
@@ -184,6 +184,6 @@ class AppThemes {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
       ),
     ),
-    fontFamily: 'Almarai',
+    fontFamily: 'IbmPlexSansArabic',
   );
 }

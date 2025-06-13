@@ -26,35 +26,6 @@ class AddProductController extends GetxController {
 
   String? _storeId; // Store ID to be populated in onInit
   // testing
-  Future<void> generateRandomProductsAndOffers(String storeId) async {
-    List<String> productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4', 'Product 5'];
-    List<String> categories = ['Category A', 'Category B', 'Category C'];
-    List<String> offerTitles = ['Offer 1', 'Offer 2', 'Offer 3', 'Offer 4', 'Offer 5'];
-
-    // Generate random products
-    for (var i = 0; i < 5; i++) {
-      await _firestore.collection(AppConstants.productsCollection).add({
-        AppConstants.nameField: productNames[i],
-        AppConstants.descriptionField: 'Description for ${productNames[i]}',
-        AppConstants.priceField: (i + 1) * 10.0,
-        AppConstants.categoryField: categories[i % 3],
-        AppConstants.storeIdField: storeId,
-        AppConstants.createdAtField: FieldValue.serverTimestamp(),
-        AppConstants.isAvailableField: true,
-      });
-    }
-
-    // Generate random offers
-    for (var i = 0; i < 5; i++) {
-      await _firestore.collection(AppConstants.offersCollection).add({
-        AppConstants.offerTitleField: offerTitles[i],
-        AppConstants.offerDescriptionField: 'Description for ${offerTitles[i]}',
-        AppConstants.storeIdField: storeId,
-        AppConstants.createdAtField: FieldValue.serverTimestamp(),
-        AppConstants.offerIsActiveField: true,
-      });
-    }
-  }
 
   @override
   void onInit() {

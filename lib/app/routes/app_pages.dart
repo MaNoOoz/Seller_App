@@ -23,12 +23,19 @@ import '../views/products/edit_product_screen.dart';
 import '../views/products/products_list_controller.dart';
 import '../views/products/products_list_screen.dart';
 import '../views/splash.dart';
+import '../views/user_app/screens/home_screen.dart';
 
 
 part 'routes.dart';
 
 class AppPages {
   static final routes = [
+
+
+    GetPage(
+      name: Routes.HOME,
+      page: () =>  HomeScreen(),
+    ),
     GetPage(
       name: Routes.SPLASH,
       page: () => const SplashScreen(),

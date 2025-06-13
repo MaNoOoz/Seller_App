@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'app/bindings/app_bindings.dart';
 import 'app/utils/constants.dart';
 import 'app/utils/theme_service.dart';
 import 'app/utils/app_themes.dart'; // Import the new AppThemes class
@@ -25,7 +26,7 @@ void main() async {
   await GetStorage.init(); // Initialize GetStorage for ThemeService
 
   // Initialize AuthController and ThemeService
-  Get.put(AuthController());
+  // Get.put(AuthController());
   Get.put(ThemeService()); // Initialize ThemeService
 
   runApp(const MyApp());
@@ -40,9 +41,10 @@ class MyApp extends StatelessWidget {
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Store Management App",
-      initialRoute: Routes.SPLASH,
+      title: "User App",
+      initialRoute: Routes.HOME,
       getPages: AppPages.routes,
+      initialBinding:AppBindings(),
 
       // Theme configuration now references AppThemes class
       themeMode: themeService.themeMode,
