@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../routes/app_pages.dart';
 import '../testers.dart';
-import '../utils/constants.dart';
+import '../utils/constants.dart' hide AppConstants;
 import '../views/no_access_screen.dart'; // New screen import
 
 class AuthController extends GetxController {
