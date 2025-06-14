@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:app/app/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
+import 'package:seller_app/app/utils/constants.dart';
 
 class methodTset {
   var logger = Logger();

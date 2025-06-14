@@ -11,7 +11,6 @@ class StoreModel {
   final String city;
   final String location;
   final Map<String, String> social; // لروابط التواصل الاجتماعي
-  final Map<String, String> workingHours; // حقل جديد لساعات العمل
   final List<String> deliveryOptions; // حقل جديد لخيارات التوصيل
   final List<String> paymentMethods; // حقل جديد لطرق الدفع
   final String announcementMessage; // حقل جديد لرسالة الإعلان
@@ -31,7 +30,6 @@ class StoreModel {
     required this.city,
     required this.location,
     required this.social,
-    required this.workingHours,
     required this.deliveryOptions,
     required this.paymentMethods,
     required this.announcementMessage,
@@ -60,7 +58,6 @@ class StoreModel {
       city: map['city'] as String? ?? '',
       location: map['location'] as String? ?? '',
       social: Map<String, String>.from(map['social'] as Map? ?? {}),
-      workingHours: Map<String, String>.from(map['working_hours'] as Map? ?? {}),
       deliveryOptions: List<String>.from(map['delivery_options'] as List? ?? []),
       paymentMethods: List<String>.from(map['payment_methods'] as List? ?? []),
       announcementMessage: map['announcement_message'] as String? ?? '',
@@ -83,7 +80,6 @@ class StoreModel {
       'city': city,
       'location': location,
       'social': social,
-      'working_hours': workingHours,
       'delivery_options': deliveryOptions,
       'payment_methods': paymentMethods,
       'announcement_message': announcementMessage,
@@ -126,7 +122,6 @@ class StoreModel {
       city: city ?? this.city,
       location: location ?? this.location,
       social: social ?? this.social,
-      workingHours: workingHours ?? this.workingHours,
       deliveryOptions: deliveryOptions ?? this.deliveryOptions,
       paymentMethods: paymentMethods ?? this.paymentMethods,
       announcementMessage: announcementMessage ?? this.announcementMessage,
@@ -140,7 +135,7 @@ class StoreModel {
 
   @override
   String toString() {
-    return 'StoreModel(id: $id, name: $name, description: $description, logoUrl: $logoUrl, phone: $phone, contactEmail: $contactEmail, city: $city, location: $location, social: $social, workingHours: $workingHours, deliveryOptions: $deliveryOptions, paymentMethods: $paymentMethods, announcementMessage: $announcementMessage, announcementActive: $announcementActive, createdBy: $createdBy, createdAt: $createdAt, updatedAt: $updatedAt, status: $status)';
+    return 'StoreModel(id: $id, name: $name, description: $description, logoUrl: $logoUrl, phone: $phone, contactEmail: $contactEmail, city: $city, location: $location, social: $social,  deliveryOptions: $deliveryOptions, paymentMethods: $paymentMethods, announcementMessage: $announcementMessage, announcementActive: $announcementActive, createdBy: $createdBy, createdAt: $createdAt, updatedAt: $updatedAt, status: $status)';
   }
 }
 

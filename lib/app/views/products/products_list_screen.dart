@@ -1,17 +1,13 @@
-import 'package:app/app/views/products/products_list_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-
-import '../../routes/app_pages.dart';
-import '../../utils/constants.dart'; // For routes
-
-import 'package:app/app/views/products/products_list_controller.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../routes/app_pages.dart';
+import '../../routes/app_pages.dart';
 import '../../utils/constants.dart'; // For routes
+import '../../utils/constants.dart';
+import 'products_list_controller.dart'; // For routes
 
 class ProductsListScreen extends GetView<ProductsListController> {
   const ProductsListScreen({super.key});

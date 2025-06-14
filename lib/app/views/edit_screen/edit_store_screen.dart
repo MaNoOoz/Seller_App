@@ -133,6 +133,18 @@ class EditStoreScreen extends GetView<EditStoreController> {
                 ),
                 const SizedBox(height: 16),
 
+                // Contact Email (New Field)
+                TextField(
+                  controller: controller.contactEmailController,
+                  decoration: InputDecoration(
+                    labelText: 'البريد الإلكتروني للتواصل',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.email, color: colorScheme.primary),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+
                 // City
                 TextField(
                   controller: controller.cityController,
@@ -223,6 +235,81 @@ class EditStoreScreen extends GetView<EditStoreController> {
 
                 const SizedBox(height: 32),
 
+                // --- Working Hours Section (New) ---
+                Text(
+                  'ساعات العمل',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                const SizedBox(height: 24),
+
+                // --- Delivery Options Section (New) ---
+                Text(
+                  'خيارات التوصيل',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                _buildListEditor(
+                  context,
+                  controller.deliveryOptions,
+                      (option) => controller.addDeliveryOption(option),
+                      (option) => controller.removeDeliveryOption(option),
+                  'إضافة خيار توصيل',
+                  'خيار التوصيل',
+                ),
+                const SizedBox(height: 24),
+
+                // --- Payment Methods Section (New) ---
+                Text(
+                  'طرق الدفع',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                _buildListEditor(
+                  context,
+                  controller.paymentMethods,
+                      (method) => controller.addPaymentMethod(method),
+                      (method) => controller.removePaymentMethod(method),
+                  'إضافة طريقة دفع',
+                  'طريقة الدفع',
+                ),
+                const SizedBox(height: 24),
+
+                // --- Announcement Section (New) ---
+                Text(
+                  'رسالة الإعلان',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller.announcementMessageController,
+                  decoration: InputDecoration(
+                    labelText: 'رسالة الإعلان',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.campaign, color: colorScheme.primary),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'تفعيل رسالة الإعلان',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Obx(() => Switch(
+                      value: controller.announcementActive.value,
+                      onChanged: (bool value) {
+                        controller.announcementActive.value = value;
+                      },
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+
+
                 // --- Management Sections ---
                 _buildManagementSection(
                   context,
@@ -250,7 +337,7 @@ class EditStoreScreen extends GetView<EditStoreController> {
                   child: ElevatedButton.icon(
                     onPressed: controller.isLoading.value ? null : controller.updateStore,
                     icon: controller.isLoading.value
-                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator())
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white))
                         : Icon(Icons.save, color: colorScheme.onPrimary),
                     label: Text(
                       controller.isLoading.value ? 'جاري الحفظ...' : 'حفظ التغييرات',
@@ -356,6 +443,73 @@ class EditStoreScreen extends GetView<EditStoreController> {
           ],
         ),
       ),
+    );
+  }
+
+  // Helper widget for Working Hours (New)
+
+  // Helper widget for lists like Delivery Options and Payment Methods (New)
+  Widget _buildListEditor(
+      BuildContext context,
+      RxList<String> list,
+      Function(String) onAdd,
+      Function(String) onRemove,
+      String addButtonText,
+      String textFieldLabel,
+      ) {
+    TextEditingController newOptionController = TextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: newOptionController,
+                decoration: InputDecoration(
+                  labelText: textFieldLabel,
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onSubmitted: (value) {
+                  onAdd(value);
+                  newOptionController.clear();
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                if (newOptionController.text.isNotEmpty) {
+                  onAdd(newOptionController.text);
+                  newOptionController.clear();
+                }
+              },
+              child: Text(addButtonText),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (list.isEmpty) {
+            return Text('لا يوجد ${textFieldLabel.toLowerCase()}s حاليًا.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
+          }
+          return Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: list.map((item) {
+              return Chip(
+                label: Text(item),
+                onDeleted: () => onRemove(item),
+                deleteIcon: Icon(Icons.cancel),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                deleteIconColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              );
+            }).toList(),
+          );
+        }),
+      ],
     );
   }
 }
