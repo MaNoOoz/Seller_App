@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
+import '../../../routes/app_pages.dart';
 import '../models/product.dart';
 import '../widgets/StoreInfoWidget.dart';
-import '../widgets/modern_app_bar.dart';
 import 'controllers/cart_controller.dart';
 import 'controllers/home_controller.dart';
 
@@ -20,11 +21,63 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: ModernAppBar(controller: homeController, rating: 4.5,),
+      // extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        actions: [
+          Obx(() {
+            final storeReady = homeController.storeInfo.value?.name != null && homeController.storeInfo.value?.phone != null;
 
+            return IconButton(
+              icon: Badge(
+                label: Obx(() => Text("${Get.find<CartController>().cartItems.length}")),
+                child: const Icon(FontAwesomeIcons.cartPlus),
+              ),
+              onPressed: storeReady
+                  ? () {
+                      Get.toNamed(
+                        Routes.CART,
+                        arguments: {
+                          "restaurantName": homeController.storeInfo.value?.name ?? '',
+                          "whatsappNumber": homeController.storeInfo.value?.phone ?? '',
+                        },
+                        // transition: Transition.fadeIn,
+                        // duration: const Duration(milliseconds: 300),
+                      );
+                    }
+                  : () {
+                      Get.snackbar(
+                        'يرجى الانتظار',
+                        'يتم تحميل بيانات المطعم...',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.black87,
+                        colorText: Colors.white,
+                      );
+                    },
+              tooltip: 'السلة',
+            );
+          }),
+        ]
+        // backgroundColor: Colors.white,
+        // surfaceTintColor: Colors.pink.shade100,
+        // shape: BeveledRectangleBorder(
+        //   borderRadius: BorderRadius.circular(22),
+        // ),
+        ,
+        title: Obx(() {
+          return Text(
+            homeController.storeInfo.value?.name ?? 'جاري التحميل...',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DG Sahabah',
+                  fontSize: 16,
+                ),
+          );
+        }),
+      ),
       body: Container(
-        padding: EdgeInsets.only(top: 200), // Adjust this value
+        padding: EdgeInsets.only(top: 2), // Adjust this value
 
         child: Directionality(
           // RTL support
@@ -49,7 +102,7 @@ class HomeScreen extends StatelessWidget {
 
                   // Store Info
                   // _buildStoreInfo(context),
-                  StoreInfoWidget(homeController: homeController),
+                  // StoreInfoWidget(homeController: homeController),
                 ],
               ),
             );
@@ -58,8 +111,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
-
 
 
   Widget _buildSectionTitle(BuildContext context, String title) {
@@ -89,7 +140,7 @@ class HomeScreen extends StatelessWidget {
     return Obx(() => Column(
           children: homeController.categories.map((categoryName) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 0.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -132,6 +183,8 @@ class HomeScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         return Padding(
           padding: EdgeInsets.only(
+            bottom: 10,
+            top: 10,
             right: index == 0 ? 20 : 8, // RTL adjustment
             left: index == products.length - 1 ? 20 : 0, // RTL adjustment
           ),
@@ -185,15 +238,15 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Expanded(
+          // Replace Expanded with Positioned.fill
+          Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: CachedNetworkImage(
                 imageUrl: product.images.first,
                 fit: BoxFit.cover,
-                width: double.infinity,
                 placeholder: (_, __) => Center(
                   child: CircularProgressIndicator(
                     color: Theme.of(context).colorScheme.primary,
@@ -203,43 +256,51 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            product.name,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'DG Sahabah',
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.touch_app, size: 16),
-              SizedBox(width: 4),
-              Text('', style: TextStyle(fontSize: 10)),
-              SizedBox(width: 4),
-              IconButton(
-                icon: Icon(Icons.shopping_cart_checkout),
-                onPressed: () {
-                  cartController.addToCart(product);
-                },
-                tooltip: 'إضافة إلى السلة',
+
+          // Rest of your Stack children remain the same
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
+              child: Text(
+                product.name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DG Sahabah',
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          const Align(
+              alignment: Alignment.bottomRight,
+              child: Icon(Icons.touch_app, size: 16)
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              color: Colors.deepPurple,
+              icon: const Icon(Icons.shopping_cart_checkout, size: 33),
+              onPressed: () {
+                cartController.addToCart(product);
+              },
+              tooltip: 'إضافة إلى السلة',
+            ),
           ),
         ],
       ),
     );
   }
-
   Widget _buildCardBack(Product product, BuildContext context) {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),

@@ -5,7 +5,7 @@ abstract class Routes {
   Routes._();
   static const SPLASH = _Paths.SPLASH;
   static const HOME = _Paths.HOME;
-  static const CART = _Paths.HOME;
+  static const CART = _Paths.CART;
   static const LOGIN = _Paths.LOGIN;
   static const DASHBOARD = _Paths.DASHBOARD;
   static const REGISTER = _Paths.REGISTER;

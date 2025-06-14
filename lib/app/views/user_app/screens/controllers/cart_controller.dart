@@ -1,103 +1,207 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import '../../models/product.dart';
 
 class CartController extends GetxController {
-  final Logger logger = Logger();
+  // Enhanced logging configuration
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 1,
+      colors: true,
+      printEmojis: true,
+      printTime: true, // Added time for better debugging
+    ),
+  );
 
-  /// List of maps: each map has a Product and its quantity
-  final RxList<Map<String, dynamic>> cartItems = <Map<String, dynamic>>[].obs;
+  // Reactive cart items with type safety
+  final RxList<CartItem> _cartItems = <CartItem>[].obs;
+  List<CartItem> get cartItems => _cartItems.toList();
 
-  /// Add a product to cart
-  void addToCart(Product product) {
-    logger.i('Adding to cart: ${product.name}');
-    final index = cartItems.indexWhere((item) => item['product'].id == product.id);
-    if (index != -1) {
-      cartItems[index]['quantity'] += 1;
-      Get.snackbar(
-        "تم التحديث",
-        "تم زيادة الكمية لـ ${product.name}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.colorScheme.surfaceVariant,
-        colorText: Get.theme.colorScheme.onSurface,
-        duration: const Duration(seconds: 2),
-      );
-    } else {
-      cartItems.add({'product': product, 'quantity': 1});
-      Get.snackbar(
-        "تمت الإضافة",
-        "${product.name} أضيف إلى السلة",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.colorScheme.primaryContainer,
-        colorText: Get.theme.colorScheme.onPrimaryContainer,
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
+  /// Add product to cart or increment quantity
+  void addToCart(Product product, {int quantity = 1}) {
+    try {
+      final existingIndex = _cartItems.indexWhere((item) => item.product.id == product.id);
 
-
-  /// Decrease quantity or remove
-  void decreaseQuantity(Product product) {
-    final index = cartItems.indexWhere((item) => item['product'].id == product.id);
-    if (index != -1) {
-      final qty = cartItems[index]['quantity'];
-      if (qty > 1) {
-        cartItems[index]['quantity'] = qty - 1;
+      if (existingIndex != -1) {
+        _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(
+            quantity: _cartItems[existingIndex].quantity + quantity
+        );
+        _logger.i('➕ Increased quantity for ${product.name}');
       } else {
-        cartItems.removeAt(index);
-        Get.snackbar(
-          "تم الحذف",
-          "${product.name} تمت إزالته من السلة",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.colorScheme.errorContainer,
-          colorText: Get.theme.colorScheme.onErrorContainer,
-          duration: const Duration(seconds: 2),
+        _cartItems.add(CartItem(product: product, quantity: quantity));
+        _logger.i('🛒 Added to cart: ${product.name}');
+        _showSnackbar(
+          title: "تمت الإضافة",
+          message: "${product.name} أضيف إلى السلة",
+          type: SnackbarType.success,
         );
       }
+    } catch (e) {
+      _logger.e('❌ Error adding to cart: $e');
+      _showSnackbar(
+        title: "خطأ",
+        message: "فشل إضافة المنتج",
+        type: SnackbarType.error,
+      );
     }
   }
 
+  /// Decrease quantity or remove item if quantity reaches zero
+  void decreaseQuantity(Product product) {
+    try {
+      final index = _cartItems.indexWhere((item) => item.product.id == product.id);
+      if (index == -1) return;
 
-  /// Remove completely
+      final currentItem = _cartItems[index];
+      if (currentItem.quantity > 1) {
+        _cartItems[index] = currentItem.copyWith(quantity: currentItem.quantity - 1);
+      } else {
+        removeFromCart(product);
+      }
+    } catch (e) {
+      _logger.e('❌ Error decreasing quantity: $e');
+    }
+  }
+
+  /// Remove specific product from cart
   void removeFromCart(Product product) {
-    cartItems.removeWhere((item) => item['product'].id == product.id);
-    Get.snackbar(
-      "تم الحذف",
-      "${product.name} تمت إزالته من السلة",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Get.theme.colorScheme.errorContainer,
-      colorText: Get.theme.colorScheme.onErrorContainer,
-      duration: const Duration(seconds: 2),
+    _cartItems.removeWhere((item) => item.product.id == product.id);
+    _showSnackbar(
+      title: "تم الحذف",
+      message: "${product.name} تمت إزالته من السلة",
+      type: SnackbarType.error,
+    );
+    _logger.w('🗑️ Removed ${product.name} from cart');
+  }
+
+  /// Clear entire cart with confirmation
+  Future<void> clearCart() async {
+    if (_cartItems.isEmpty) return;
+
+    _cartItems.clear();
+    _logger.w("🧹 Cart cleared");
+    _showSnackbar(
+      title: "تم التفريغ",
+      message: "تم تفريغ السلة بنجاح",
+      type: SnackbarType.info,
     );
   }
 
+  /// Get total cart value
+  double get totalPrice => _cartItems.fold(0.0, (sum, item) => sum + (item.product.price * item.quantity));
 
-  /// Clear all
-  void clearCart() {
-    cartItems.clear();
-  }
+  /// Get total number of items in cart
+  int get itemCount => _cartItems.fold(0, (sum, item) => sum + item.quantity);
 
-  /// Calculate total
-  double get totalPrice => cartItems.fold(0.0, (sum, item) {
-    final product = item['product'] as Product;
-    final qty = item['quantity'] as int;
-    return sum + (product.price * qty);
-  });
-
-  /// Generate WhatsApp message
+  /// Generate formatted WhatsApp order message
   String generateWhatsAppMessage(String restaurantName) {
-    if (cartItems.isEmpty) return "سلة الطلبات فارغة.";
+    if (_cartItems.isEmpty) return Uri.encodeComponent("سلة الطلبات فارغة.");
 
-    final buffer = StringBuffer("مرحباً، أود الطلب من $restaurantName:\n\n");
+    final buffer = StringBuffer()
+      ..writeln("مرحباً، أود الطلب من $restaurantName:")
+      ..writeln("-------------------------------");
 
-    for (var item in cartItems) {
-      final product = item['product'] as Product;
-      final quantity = item['quantity'] as int;
-      buffer.writeln("• ${product.name} × $quantity = ${(product.price * quantity).toStringAsFixed(0)} ل.س");
+    for (final item in _cartItems) {
+      final total = (item.product.price * item.quantity).toStringAsFixed(0);
+      buffer.writeln("• ${item.product.name} × ${item.quantity} = $total ل.س");
+
+      // Add product notes if available
+      if (item.notes != null && item.notes!.isNotEmpty) {
+        buffer.writeln("  - ملاحظات: ${item.notes}");
+      }
     }
 
-    buffer.writeln("\nالإجمالي: ${totalPrice.toStringAsFixed(0)} ل.س");
+    buffer
+      ..writeln("-------------------------------")
+      ..writeln("الإجمالي: ${totalPrice.toStringAsFixed(0)} ل.س")
+      ..writeln("\nشكراً لكم!");
 
     return Uri.encodeComponent(buffer.toString());
   }
+
+  /// Update product notes
+  void updateProductNotes(Product product, String notes) {
+    final index = _cartItems.indexWhere((item) => item.product.id == product.id);
+    if (index != -1) {
+      _cartItems[index] = _cartItems[index].copyWith(notes: notes);
+      _logger.i('📝 Updated notes for ${product.name}');
+    }
+  }
+
+  /// Show customized snackbar
+  void _showSnackbar({
+    required String title,
+    required String message,
+    required SnackbarType type,
+  }) {
+    final theme = Get.theme;
+    late final Color backgroundColor;
+    late final Color textColor;
+
+    switch (type) {
+      case SnackbarType.success:
+        backgroundColor = theme.colorScheme.primaryContainer;
+        textColor = theme.colorScheme.onPrimaryContainer;
+        break;
+      case SnackbarType.error:
+        backgroundColor = theme.colorScheme.errorContainer;
+        textColor = theme.colorScheme.onErrorContainer;
+        break;
+      case SnackbarType.info:
+      default:
+        backgroundColor = theme.colorScheme.surfaceVariant;
+        textColor = theme.colorScheme.onSurface;
+        break;
+    }
+
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: backgroundColor,
+      colorText: textColor,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(10),
+      borderRadius: 8,
+      animationDuration: const Duration(milliseconds: 300),
+      mainButton: _cartItems.isNotEmpty
+          ? TextButton(
+        onPressed: () => Get.toNamed('/cart'),
+        child: Text(
+          'عرض السلة ($itemCount)',
+          style: TextStyle(color: theme.colorScheme.primary),
+        ),
+      )
+          : null,
+    );
+  }
 }
+
+/// Type-safe cart item model
+class CartItem {
+  final Product product;
+  final int quantity;
+  final String? notes;
+
+  CartItem({
+    required this.product,
+    this.quantity = 1,
+    this.notes,
+  });
+
+  CartItem copyWith({
+    Product? product,
+    int? quantity,
+    String? notes,
+  }) {
+    return CartItem(
+      product: product ?? this.product,
+      quantity: quantity ?? this.quantity,
+      notes: notes ?? this.notes,
+    );
+  }
+}
+
+/// Snackbar types
+enum SnackbarType { success, error, info }

@@ -12,6 +12,7 @@ import 'app/bindings/app_bindings.dart';
 import 'app/utils/constants.dart';
 import 'app/utils/theme_service.dart';
 import 'app/utils/app_themes.dart'; // Import the new AppThemes class
+import 'app/views/user_app/screens/controllers/cart_controller.dart';
 import 'firebase_options.dart';
 import 'app/routes/app_pages.dart';
 import 'app/controllers/auth_controller.dart';
@@ -28,6 +29,7 @@ void main() async {
   // Initialize AuthController and ThemeService
   // Get.put(AuthController());
   Get.put(ThemeService()); // Initialize ThemeService
+  Get.put(CartController()); // Make it available globally
 
   runApp(const MyApp());
 }

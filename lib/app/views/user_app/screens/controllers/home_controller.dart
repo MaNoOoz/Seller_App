@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import '../../models/Offer.dart';
 import '../../models/Store.dart';
 
+
 class HomeController extends GetxController {
 
   final flippedCards = <String, bool>{}.obs;
@@ -32,9 +33,18 @@ class HomeController extends GetxController {
   RxList<Offer> offers = <Offer>[].obs;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Logger _logger = Logger(
+  final _logger = Logger(
+    printer: PrettyPrinter(
+
+      methodCount: 4,
+      errorMethodCount: 8,
+      lineLength: 120,
+      colors: true,
+      printEmojis: true,
+    ), // <– disables stack trace
 
   );
+
   final String storeId = "p2HNRulZDPyjYcSMgvRP"; // centralize store ID
 
   @override
@@ -49,14 +59,14 @@ class HomeController extends GetxController {
   /// ✅ Fetch products only from the current store and extract unique categories
   Future<void> fetchMenuItems() async {
     isLoading(true);
-    _logger.e('Fetching products for store: $storeId');
+    _logger.d('Fetching products for store: $storeId');
     try {
       final productDocs = await _firestore
           .collection('products')
           .where('store_id', isEqualTo: storeId)
           .get();
 
-      _logger.e('Products fetched: ${productDocs.docs.length}');
+      _logger.d('Products fetched: ${productDocs.docs.length}');
 
       List<Product> products = [];
       Set<String> categorySet = {};
@@ -67,7 +77,7 @@ class HomeController extends GetxController {
           products.add(product);
           categorySet.add(product.category);
         } catch (e) {
-          _logger.e('Error processing product: $e');
+          _logger.d('Error processing product: $e');
         }
       }
 
@@ -75,20 +85,20 @@ class HomeController extends GetxController {
       filteredMenuItems.assignAll(products);
       categories.assignAll(categorySet.toList());
     } catch (e) {
-      _logger.e('Failed to load products: $e');
+      _logger.d('Failed to load products: $e');
       errorMessage("Failed to load products: $e");
     } finally {
       isLoading(false);
     }
   }// New method to reset filter
   void resetCategoryFilter() {
-    _logger.e("Resetting category filter");
+    _logger.d("Resetting category filter");
     selectedCategory.value = null;
     filteredMenuItems.assignAll(allProducts);
   }
   // Filter products by selected category
   void filterByCategory(String category) {
-    _logger.e("Filtering by category: $category");
+    _logger.d("Filtering by category: $category");
     selectedCategory.value = category;
 
     final filtered = allProducts.where((product) => product.category == category).toList();
@@ -96,45 +106,45 @@ class HomeController extends GetxController {
   }
   // Fetch Store Information
   Future<void> fetchStoreInfo() async {
-    _logger.e('Fetching store information...');
+    _logger.d('Fetching store information...');
     try {
       final storeDoc = await _firestore.collection('stores').doc(storeId).get(); // Replace with the actual store_id
       final Map<String, dynamic> data = storeDoc.data() as Map<String, dynamic>;
 
       if (storeDoc.exists) {
         storeInfo.value = Store.fromMap(storeId,data);
-        _logger.e('Store info fetched: ${storeInfo.value?.name}');
+        _logger.d('Store info fetched: ${storeInfo.value?.name}');
       } else {
-        _logger.e('Store not found');
+        _logger.d('Store not found');
       }
     } catch (e) {
-      _logger.e('Failed to load store info: $e');
+      _logger.d('Failed to load store info: $e');
       errorMessage("Failed to load store info: $e");
     }
   }
 
   // Fetch active Offers for the Store
   Future<void> fetchOffers() async {
-    _logger.e('Fetching offers...');
+    _logger.d('Fetching offers...');
     try {
       final offerDocs = await _firestore
           .collection('offers')
           .where('store_id', isEqualTo: "p2HNRulZDPyjYcSMgvRP") // Only fetch active offers
           .get();
-      _logger.e('Offers fetched: ${offerDocs.docs.length}');
+      _logger.d('Offers fetched: ${offerDocs.docs.length}');
 
       offers.assignAll(
         offerDocs.docs.map((doc) {
           try {
             return Offer.fromDocument(doc);
           } catch (e) {
-            _logger.e('Error processing offer: $e');
+            _logger.d('Error processing offer: $e');
             return null;
           }
         }).whereType<Offer>().toList(),
       );
     } catch (e) {
-      _logger.e('Failed to load offers: $e');
+      _logger.d('Failed to load offers: $e');
       errorMessage("Failed to load offers: $e");
     }
   }
