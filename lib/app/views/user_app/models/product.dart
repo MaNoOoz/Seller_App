@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Product {
+  final String id;
   final String category;
   final Timestamp createdAt;
   final String description;
@@ -11,6 +12,7 @@ class Product {
   final String storeId;
 
   Product({
+    required this.id,
     required this.category,
     required this.createdAt,
     required this.description,
@@ -24,6 +26,7 @@ class Product {
   // Convert Firestore document to Product
   factory Product.fromDocument(DocumentSnapshot doc) {
     return Product(
+      id: doc.id,
       category: doc['category'] ?? '',  // Default to empty string if missing
       createdAt: doc['created_at'] ?? Timestamp.now(),
       description: doc['description'] ?? '',

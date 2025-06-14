@@ -186,4 +186,43 @@ class AppThemes {
     ),
     fontFamily: 'IbmPlexSansArabic',
   );
+
+
+  // --- Define your custom Material 3 color scheme ---
+  static final ThemeData myCustomTheme = ThemeData(
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF4CAF50), // A vibrant green, similar to your logo placeholder
+      primary: const Color(0xFF4CAF50), // Main brand color
+      onPrimary: Colors.white,
+      secondary: const Color(0xFF8BC34A), // A lighter green for accents
+      onSecondary: Colors.white,
+      surface: Colors.white, // Background for cards/sheets
+      onSurface: Colors.black87, // Text color on surface
+      background: const Color(0xFFF0F4F8), // A light grey-blue for overall background
+      onBackground: Colors.black87,
+      error: Colors.red.shade700,
+      onError: Colors.white,
+      brightness: Brightness.light,
+    ),
+    textTheme: const TextTheme(
+
+      displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.bold),
+      displayMedium: TextStyle(fontSize: 45),
+      displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.bold), // Used for store name
+      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w600), // Used for section titles
+      headlineMedium: TextStyle(fontSize: 28),
+      headlineSmall: TextStyle(fontSize: 24),
+      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      titleSmall: TextStyle(fontSize: 14),
+      bodyLarge: TextStyle(fontSize: 16),
+      bodyMedium: TextStyle(fontSize: 14), // Default body text
+      bodySmall: TextStyle(fontSize: 12),
+      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      labelMedium: TextStyle(fontSize: 12),
+      labelSmall: TextStyle(fontSize: 11),
+    ),
+  );
+
 }

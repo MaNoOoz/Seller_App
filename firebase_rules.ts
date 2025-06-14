@@ -1,7 +1,10 @@
+
+// USER APP ONLY READ ONLY ACCESS FOR NOW
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper Functions
+    // ========== Helpers ==========
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -10,54 +13,54 @@ service cloud.firestore {
       return request.auth.uid;
     }
 
-    function isAdmin() {
-      // Replace with actual check for admin users
-      return getUserId() == 'admin_user_id';  // Example: You can add your actual admin check here
-    }
-
     function isStoreOwner(storeId) {
       return isAuthenticated() &&
-             exists(/databases/$(database)/documents/stores/$(storeId)) &&
-             get(/databases/$(database)/documents/stores/$(storeId)).data.created_by == getUserId();
+        get(/databases/$(database)/documents/stores/$(storeId)).data.created_by == getUserId();
     }
 
-    // Store Collection Rules
+    // ========== STORES ==========
     match /stores/{storeId} {
-      // Create: Only Admin can create a store
-      allow create: if isAdmin();
+      // Public users (unauthenticated) can read public fields only
+      allow get, list: if true;
 
-      // Read: Anyone can read a store
-      allow read: if true;
+      // Prevent reading sensitive fields like `created_by` in the user app
+      allow get: if !(request.auth == null) || !(request.resource.data.keys().hasAny(['created_by']));
 
-      // Update: Only Store Owner and Admin can update store data
-      allow update: if isStoreOwner(storeId) || isAdmin();
+      // Only owners can write/update/delete
+      allow create: if isAuthenticated() &&
+        request.resource.data.created_by == getUserId();
 
-      // Delete: Only Store Owner and Admin can delete a store
-      allow delete: if isStoreOwner(storeId) || isAdmin();
+      allow update, delete: if isStoreOwner(storeId);
     }
 
-    // Products Collection Rules
+    // ========== PRODUCTS ==========
     match /products/{productId} {
-      // Read: Anyone can read a product
+      // Anyone can read products
       allow read: if true;
 
-      // Create: Only the Store Owner and Admin can create a product
-      allow create: if isAuthenticated() && isStoreOwner(request.resource.data.store_id) || isAdmin();
+      // Only store owners can create/update/delete
+      allow create: if isAuthenticated() &&
+        request.resource.data.store_id is string &&
+        isStoreOwner(request.resource.data.store_id);
 
-      // Update/Delete: Only the Store Owner and Admin can update or delete a product
-      allow update, delete: if isAuthenticated() && isStoreOwner(resource.data.store_id) || isAdmin();
+      allow update, delete: if isAuthenticated() &&
+        resource.data.store_id is string &&
+        isStoreOwner(resource.data.store_id);
     }
 
-    // Offers Collection Rules
+    // ========== OFFERS ==========
     match /offers/{offerId} {
-      // Read: Anyone can read an offer
+      // Anyone can read offers
       allow read: if true;
 
-      // Create: Only the Store Owner and Admin can create an offer
-      allow create: if isAuthenticated() && isStoreOwner(request.resource.data.store_id) || isAdmin();
+      // Only store owners can create/update/delete
+      allow create: if isAuthenticated() &&
+        request.resource.data.store_id is string &&
+        isStoreOwner(request.resource.data.store_id);
 
-      // Update/Delete: Only the Store Owner and Admin can update or delete an offer
-      allow update, delete: if isAuthenticated() && isStoreOwner(resource.data.store_id) || isAdmin();
+      allow update, delete: if isAuthenticated() &&
+        resource.data.store_id is string &&
+        isStoreOwner(resource.data.store_id);
     }
   }
 }

@@ -1,126 +1,116 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+// import 'package:google_fonts/google_fonts.dart';
+import '../models/product.dart';
 import '../screens/controllers/home_controller.dart';
 
 class ProductsHorizontalList extends StatelessWidget {
   final HomeController homeController;
 
-  const ProductsHorizontalList({Key? key, required this.homeController}) : super(key: key);
+  const ProductsHorizontalList({super.key, required this.homeController});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Obx(() {
-      final list = homeController.filteredMenuItems;
-      // if (list.isEmpty) {
-      //   return const SizedBox(
-      //     height: 200,
-      //     child: Center(child: Text('لا توجد منتجات')),
-      //   );
-      // }
+       RxList<Product> list = homeController.filteredMenuItems;
 
-      return Card(
-        child: SizedBox(
-          height: 260,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              final item = list[index];
-
-              return Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                child: Container(
-                  width: 180,
-                  margin: const EdgeInsets.only(right: 12),
-                  child: Stack(
-                    children: [
-                      // Full-background image
-
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(item.images.first),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Semi-transparent overlay (optional)
-                      // ClipRRect(
-                      //   borderRadius: BorderRadius.circular(12),
-                      //   child: Container(
-                      //     color: Colors.black.withOpacity(0.2),
-                      //   ),
-                      // ),
-
-                      // Price badge
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${item.price.toStringAsFixed(2)} ل.س',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${item.name}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${item.category}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Product name at bottom
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+      return SizedBox(
+        height: 360,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            final item = list[index];
+            return _buildAnimatedCard(item, theme);
+          },
         ),
       );
     });
+  }
+
+  Widget _buildAnimatedCard( Product item, ThemeData theme) {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: 200,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: item.images.first,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 40),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 16,
+                      left: 12,
+                      right: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text(
+                            item.name,
+                            style: TextStyle(
+
+                              fontFamily: 'DG Sahabah',
+                            ),
+                            // style: GoogleFonts.cairo(
+                            //   color: Colors.white,
+                            //   fontSize: 18,
+                            //   fontWeight: FontWeight.bold,
+                            // ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

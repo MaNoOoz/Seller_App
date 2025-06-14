@@ -88,8 +88,10 @@ class HomeController extends GetxController {
     _logger.i('Fetching store information...');
     try {
       final storeDoc = await _firestore.collection('stores').doc(storeId).get(); // Replace with the actual store_id
+      final Map<String, dynamic> data = storeDoc.data() as Map<String, dynamic>;
+
       if (storeDoc.exists) {
-        storeInfo.value = Store.fromDocument(storeDoc);
+        storeInfo.value = Store.fromMap(storeId,data);
         _logger.i('Store info fetched: ${storeInfo.value?.name}');
       } else {
         _logger.e('Store not found');
@@ -125,4 +127,10 @@ class HomeController extends GetxController {
       errorMessage("Failed to load offers: $e");
     }
   }
+
+
+  List<Product> getProductsByCategory(String category) {
+    return filteredMenuItems.where((p) => p.category == category).toList();
+  }
 }
+

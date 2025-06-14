@@ -13,6 +13,8 @@ dependencies:
   cloud_firestore: ^5.6.8
   firebase_storage: ^12.4.6
   logger:
+  flutter_svga:
+  carousel_slider: ^5.1.1
   url_launcher:
   get: ^4.7.2
   get_storage: ^2.1.1
@@ -35,9 +37,17 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/fonts/
   # Add your custom fonts here
   fonts:
+
+    - family: AmazonEmber  # Your font family name
+      fonts:
+        - asset: assets/fonts/AmazonEmber.ttf
+    - family: DG Sahabah  # Your font family name
+      fonts:
+        - asset: assets/fonts/DG Sahabah Bold.ttf
     - family: IBMPlexSansArabic
       fonts:
-        - asset: assets/fonts/ibm_plex/IBMPlexSansArabic-Bold.ttf
+        - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
           weight: 700

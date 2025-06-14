@@ -28,7 +28,13 @@ class CategoryWidget extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ChoiceChip(
-                label: Text(cat),
+                label: Text(cat,
+
+                  style: TextStyle(
+
+                    fontFamily: 'DG Sahabah',
+                  ),
+                ),
                 selected: isSelected,
                 onSelected: (sel) {
                   if (sel) {
@@ -39,7 +45,7 @@ class CategoryWidget extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                 labelStyle: TextStyle(
                   color: isSelected
-                      ? Colors.white
+                      ? Colors.deepPurple
                       : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
