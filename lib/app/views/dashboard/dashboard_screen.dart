@@ -177,7 +177,14 @@ class DashboardScreen extends GetView<DashboardController> {
                         label: Text(controller.phoneNumber.value),
                         labelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
                         backgroundColor: colorScheme.secondaryContainer,
-                        onPressed: () => _launchUrl('tel:${controller.phoneNumber.value}'),
+                        onPressed: () {
+                          // Format the phone number for WhatsApp
+                          final formattedNumber = controller.formatPhoneNumberForWhatsApp(controller.phoneNumber.value);
+                          // Construct the WhatsApp URL
+                          final whatsappUrl = 'https://wa.me/$formattedNumber';
+
+                          _launchUrl(whatsappUrl);
+                        },
                       )
                           : const SizedBox.shrink()
                       ),
@@ -411,7 +418,7 @@ class DashboardScreen extends GetView<DashboardController> {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
       Get.snackbar('خطأ', 'لا يمكن فتح الرابط: $url',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Get.theme.colorScheme.errorContainer,
           colorText: Get.theme.colorScheme.onErrorContainer);
     }

@@ -1,6 +1,8 @@
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'edit_store_controller.dart';
 
 class EditStoreScreen extends GetView<EditStoreController> {
@@ -9,9 +11,47 @@ class EditStoreScreen extends GetView<EditStoreController> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final _formKey = GlobalKey<FormState>(); // Define a GlobalKey for your form
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Obx(() {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextButton.icon(
+                onPressed: () {
+                  // This is where you trigger validation for all fields in the form
+                  if (_formKey.currentState!.validate()) {
+                    // All fields are valid!
+                    // Proceed with saving data (e.g., call controller.updateStore())
+                    Get.snackbar('نجاح', 'البيانات صحيحة ويمكن حفظها!', snackPosition: SnackPosition.TOP, backgroundColor: Colors.green.shade100, colorText: Colors.green.shade800);
+                    controller.updateStore(); // Example: Call your update method
+                  } else {
+                    // There are validation errors
+                    Get.snackbar(
+                      'خطأ في الإدخال',
+                      'الرجاء تصحيح الأخطاء في النموذج قبل المتابعة.',
+                      snackPosition: SnackPosition.TOP,
+                      backgroundColor: Colors.red.shade100,
+                      colorText: Colors.red.shade800,
+                    );
+                  }
+                },
+                icon: controller.isLoading.value ? const SizedBox(width: 10, height: 10, child: CircularProgressIndicator(color: Colors.white)) : Icon(Icons.save, color: colorScheme.onPrimary),
+                label: Text(
+                  controller.isLoading.value ? '...' : 'حفظ ',
+                  style: TextStyle(color: colorScheme.onPrimary),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            );
+          }),
+        ],
         title: const Text('تعديل بيانات المتجر'),
         backgroundColor: colorScheme.primaryContainer,
         foregroundColor: colorScheme.onPrimaryContainer,
@@ -122,15 +162,39 @@ class EditStoreScreen extends GetView<EditStoreController> {
                 const SizedBox(height: 16),
 
                 // Store Phone Number
-                TextField(
-                  controller: controller.phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'رقم الهاتف',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.phone, color: colorScheme.primary),
+                Form(
+                  key: _formKey, // Use the GlobalKey
+                  child: TextFormField( // Use TextFormField instead of TextField
+                    controller: controller.phoneController,
+                    maxLines: 1,
+                    maxLength: 10, // <--- Add this line to set the maximum length to 10 characters
+
+                    decoration: InputDecoration(
+                      labelText: 'بدون مفتاح رقم الهاتف',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.phone, color: colorScheme.primary),
+                      hintText: 'مثال: 9xxxxxxxx', // Updated hint for Syrian numbers
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) { // This is the validator function
+                      if (value == null || value.isEmpty) {
+                        return 'رقم الهاتف مطلوب'; // Error message if the field is empty
+                      }
+
+                      // Regular expression for a simple Syrian mobile number format:
+                      // Can start with '09' followed by 8 digits, or '9' followed by 8 digits.
+                      // Example: 09XXXXXXXX or 9XXXXXXXX
+                      final phoneRegex = RegExp(r'^(0?9[0-9]{8}|9[0-9]{8})$');
+                      if (!phoneRegex.hasMatch(value)) {
+                        return 'الرجاء إدخال رقم هاتف سوري صحيح (مثال: 09XXXXXXXX أو 9XXXXXXXX)'; // Updated error message for Syrian format
+                      }
+
+                      // If validation passes, return null
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.phone,
                 ),
+
                 const SizedBox(height: 16),
 
                 // Contact Email (New Field)
@@ -332,24 +396,6 @@ class EditStoreScreen extends GetView<EditStoreController> {
                 ),
                 const SizedBox(height: 32),
 
-                // --- Save Button ---
-                Obx(() => Center(
-                  child: ElevatedButton.icon(
-                    onPressed: controller.isLoading.value ? null : controller.updateStore,
-                    icon: controller.isLoading.value
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white))
-                        : Icon(Icons.save, color: colorScheme.onPrimary),
-                    label: Text(
-                      controller.isLoading.value ? 'جاري الحفظ...' : 'حفظ التغييرات',
-                      style: TextStyle(color: colorScheme.onPrimary),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                )),
                 const SizedBox(height: 20),
                 Obx(() {
                   if (controller.error.value.isNotEmpty) {

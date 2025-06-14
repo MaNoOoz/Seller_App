@@ -16,7 +16,10 @@ import '../../utils/constants.dart'; // Import Routes for navigation
 class EditStoreController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Logger logger = Logger();
+  final Logger logger = Logger(
+    printer: PrettyPrinter(methodCount:4),
+
+  );
 
   // Observable state for UI
   var isLoading = false.obs;
@@ -410,4 +413,5 @@ class EditStoreController extends GetxController {
     if (_storeDocId == null) return;
     Get.toNamed(Routes.OFFERS_LIST, arguments: {'storeId': _storeDocId});
   }
+
 }

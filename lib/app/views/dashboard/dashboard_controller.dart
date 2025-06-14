@@ -209,4 +209,31 @@ class DashboardController extends GetxController {
   void goToOffersList(String storeId) {
     Get.toNamed(Routes.OFFERS_LIST, arguments: {'storeId': storeId});
   }
-}
+
+  String formatPhoneNumberForWhatsApp(String rawPhoneNumber) {
+    // Remove all non-digit characters
+    String cleanedNumber = rawPhoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+
+    // Check if it already starts with a country code (e.g., +963, 00963)
+    if (cleanedNumber.startsWith('00963')) { // Corrected from 00969
+      return '+${cleanedNumber.substring(2)}'; // Remove '00' prefix
+    } else if (cleanedNumber.startsWith('963')) { // Corrected from 969
+      return '+$cleanedNumber'; // Add '+' if it starts with country code without it
+    } else if (cleanedNumber.startsWith('+963')) { // Corrected from +969
+      return cleanedNumber; // Already in desired format
+    }
+
+    // Assume Syrian number if it starts with '09' or '9' and is of typical length
+    // Syrian mobile numbers generally start with 09 and are 10 digits long (09XXXXXXXX)
+    // or 9 digits long if the leading '0' is omitted (9XXXXXXXX).
+    if (cleanedNumber.startsWith('09') && cleanedNumber.length == 10) {
+      return '+963${cleanedNumber.substring(1)}'; // Corrected to +963, remove '0'
+    } else if (cleanedNumber.startsWith('9') && cleanedNumber.length == 9) {
+      return '+963$cleanedNumber'; // Corrected to +963, prepend to '9XXXXXXXX'
+    }
+
+    // If it doesn't match common local or international Syrian patterns,
+    // return as is (cleaned). You might want to handle other cases or
+    // explicitly throw an error if strict validation is needed here.
+    return cleanedNumber;
+  }}
