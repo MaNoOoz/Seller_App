@@ -1,5 +1,5 @@
-name: app
-description: Flutter Web app for merchant dashboard with Firebase and GetX
+name: seller_app
+description: Flutter Web seller_app for merchant dashboard with Firebase and GetX
 publish_to: 'none'
 
 environment:

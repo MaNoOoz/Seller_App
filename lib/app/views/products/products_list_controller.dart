@@ -1,4 +1,4 @@
-// lib/app/controllers/products_list_controller.dart
+// lib/seller_app/controllers/products_list_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';

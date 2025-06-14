@@ -1,4 +1,4 @@
-// lib/app/routes/app_pages.dart
+// lib/seller_app/routes/app_pages.dart
 import 'package:get/get.dart';
 
 import '../../main.dart';

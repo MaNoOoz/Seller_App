@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "868804393175",
+    "project_id": "seller-app-syria",
+    "storage_bucket": "seller-app-syria.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868804393175:android:2ac9d841a7181867b7d892",
+        "android_client_info": {
+          "package_name": "com.example.merchant_dashboard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhTaUu3P5PbFnCyCLM__T9leg-l47j_9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868804393175:android:30746d3de32b9e51b7d892",
+        "android_client_info": {
+          "package_name": "com.tt.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhTaUu3P5PbFnCyCLM__T9leg-l47j_9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868804393175:android:2c3330f9435d7933b7d892",
+        "android_client_info": {
+          "package_name": "com.tt.seller_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhTaUu3P5PbFnCyCLM__T9leg-l47j_9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

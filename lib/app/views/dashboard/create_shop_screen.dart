@@ -1,4 +1,4 @@
-// lib/app/views/create_shop/create_shop_screen.dart
+// lib/seller_app/views/create_shop/create_shop_screen.dart
 
 import 'dart:typed_data';
 

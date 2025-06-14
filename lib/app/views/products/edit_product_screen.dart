@@ -1,4 +1,4 @@
-// lib/app/views/products/edit_product_screen.dart
+// lib/seller_app/views/products/edit_product_screen.dart
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';

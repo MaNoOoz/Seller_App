@@ -70,9 +70,9 @@ class methodTset {
     final fakeStore = {
       'name': 'متجر تجريبي', // اسم المتجر
       'description': 'وصف المتجر التجريبي', // وصف المتجر
-      'logo_url': 'https://example.com/logo.png', // رابط الشعار
+      'logo_url': 'https://tt.com/logo.png', // رابط الشعار
       'phone': '1234567890', // رقم الهاتف
-      'contact_email': 'test@example.com', // البريد الإلكتروني
+      'contact_email': 'test@tt.com', // البريد الإلكتروني
       'city': 'المدينة التجريبية', // المدينة
       'location': 'الموقع التجريبي', // الموقع
       'social': {

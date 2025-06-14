@@ -1,4 +1,4 @@
-// lib/app/views/no_access_screen.dart
+// lib/seller_app/views/no_access_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart'; // Assuming AuthController handles logout

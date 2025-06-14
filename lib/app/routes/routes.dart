@@ -1,4 +1,4 @@
-// lib/app/routes/routes.dart
+// lib/seller_app/routes/routes.dart
 part of 'app_pages.dart';
 
 abstract class Routes {
