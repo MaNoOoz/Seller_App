@@ -44,7 +44,7 @@ class AppConstants {
   static const String imagesField = 'images'; // For product images
   static const String priceField = 'price';
   static const String categoryField = 'category';
-  static const String storeIdField = 'storeId'; // To link products/offers to stores
+  static const String storeIdField = 'store_id'; // To link products/offers to stores
   static const String isAvailableField = 'is_available'; // For products
 
   // --- Other potentially useful constants ---
