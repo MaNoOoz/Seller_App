@@ -2,10 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 import '../models/Offer.dart';
 import '../models/product.dart';
 import '../widgets/StoreInfoWidget.dart';
+import '../widgets/modern_app_bar.dart';
 import 'controllers/home_controller.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -20,113 +22,44 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.surface,
-                Theme.of(context).colorScheme.surface,
-              ],
-            ),
-          ),
-        ),
+      appBar: ModernAppBar(controller: homeController, rating: 4.5,),
 
-        toolbarHeight: 80,
-        // Increased height for modern look
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        // For Material 3
-        elevation: 0.5,
-        // Subtle shadow
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {},
-          tooltip: 'القائمة', // Arabic for 'Menu'
-        ),
-        title: Obx(() {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                homeController.storeInfo.value?.name ?? 'جاري التحميل...',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'DG Sahabah',
-                ),
+      body: Container(
+        padding: EdgeInsets.only(top: 200), // Adjust this value
+
+        child: Directionality(
+          // RTL support
+          textDirection: TextDirection.rtl,
+          child: Obx(() {
+            Logger().i('Loading: ${homeController.isLoading.value}');
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome Section
+                  // _buildWelcomeSection(context),
+
+                  // Offers Carousel
+                  // _buildOffersCarousel(context),
+
+                  // Menu Title
+                  _buildSectionTitle(context, "قائمة الطعام"),
+
+                  // Categories Products
+                  _buildCategoriesProducts(context),
+
+                  // Store Info
+                  // _buildStoreInfo(context),
+                  StoreInfoWidget(homeController: homeController),
+                ],
               ),
-              SizedBox(height: 4),
-
-              if (homeController.storeInfo.value != null)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'متجرك المفضل', // "Your favorite store" in Arabic
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                          fontFamily: 'DG Sahabah',
-                        ),
-                  ),
-                ),
-            ],
-          );
-        }),
-        actions: [
-          IconButton(
-            icon: Badge(
-              // Notification badge
-              label: const Text('3'), // Replace with dynamic count
-              child: const Icon(Icons.notifications_outlined),
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            color: Theme.of(context).dividerColor.withOpacity(0.1),
-          ),
+            );
+          }),
         ),
-      ),
-      body: Directionality(
-        // RTL support
-        textDirection: TextDirection.rtl,
-        child: Obx(() {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Welcome Section
-                _buildWelcomeSection(context),
-
-                // Offers Carousel
-                _buildOffersCarousel(context),
-
-                // Menu Title
-                _buildSectionTitle(context, "القائمة الرئيسية"),
-
-                // Categories Products
-                _buildCategoriesProducts(context),
-
-                // Store Info
-                // _buildStoreInfo(context),
-                StoreInfoWidget(homeController: homeController),
-              ],
-            ),
-          );
-        }),
       ),
     );
   }
+
 
   Widget _buildWelcomeSection(BuildContext context) {
     return Padding(
@@ -144,6 +77,113 @@ class HomeScreen extends StatelessWidget {
                 ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context) {
+    return AppBar(
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme
+                  .of(context)
+                  .colorScheme
+                  .surface,
+              Theme
+                  .of(context)
+                  .colorScheme
+                  .surface,
+            ],
+          ),
+        ),
+      ),
+
+      toolbarHeight: 180,
+      // Increased height for modern look
+      backgroundColor: Theme
+          .of(context)
+          .colorScheme
+          .surface,
+      surfaceTintColor: Colors.transparent,
+      // For Material 3
+      elevation: 0.5,
+      // Subtle shadow
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () {},
+        tooltip: 'القائمة', // Arabic for 'Menu'
+      ),
+      title: Obx(() {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              homeController.storeInfo.value?.name ?? 'جاري التحميل...',
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(
+                color: Theme
+                    .of(context)
+                    .colorScheme
+                    .onSurface,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'DG Sahabah',
+              ),
+            ),
+            SizedBox(height: 4),
+
+            if (homeController.storeInfo.value != null)
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'متجرك المفضل', // "Your favorite store" in Arabic
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7),
+                    fontFamily: 'DG Sahabah',
+                  ),
+                ),
+              ),
+          ],
+        );
+      }),
+      actions: [
+        IconButton(
+          icon: Badge(
+            // Notification badge
+            label: const Text('3'), // Replace with dynamic count
+            child: const Icon(Icons.notifications_outlined),
+          ),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {},
+        ),
+        const SizedBox(width: 8),
+      ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(
+          height: 1,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          color: Theme
+              .of(context)
+              .dividerColor
+              .withOpacity(0.1),
+        ),
       ),
     );
   }
@@ -261,21 +301,24 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-      child: Row(
-        children: [
-          const Icon(Icons.menu_book, color: Colors.blue),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'DG Sahabah',
-                ),
-          ),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.menu_book, color: Colors.blue),
+            const SizedBox(width: 18),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'DG Sahabah',
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }

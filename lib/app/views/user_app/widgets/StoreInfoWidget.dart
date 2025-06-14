@@ -43,66 +43,66 @@ class StoreInfoWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // --- Store Header: Logo, Name, Description, Status ---
-                  _buildSectionContainer(
-                    context,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl: store.logoUrl,
-                            height: 80,
-                            width: 80,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                            const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                            const Icon(Icons.store, size: 80, color: Colors.grey),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                store.name,
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                store.description,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Chip(
-                            label: Text(store.status,
-                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                            backgroundColor: Theme.of(context).colorScheme.secondary,
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    padding: const EdgeInsets.all(16),
-                  ),
+                  // _buildSectionContainer(
+                  //   context,
+                  //   child: Row(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       ClipRRect(
+                  //         borderRadius: BorderRadius.circular(12),
+                  //         child: CachedNetworkImage(
+                  //           imageUrl: store.logoUrl,
+                  //           height: 80,
+                  //           width: 80,
+                  //           fit: BoxFit.cover,
+                  //           placeholder: (context, url) =>
+                  //           const CircularProgressIndicator(),
+                  //           errorWidget: (context, url, error) =>
+                  //           const Icon(Icons.store, size: 80, color: Colors.grey),
+                  //         ),
+                  //       ),
+                  //       const SizedBox(width: 16),
+                  //       Expanded(
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               store.name,
+                  //               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  //                 color: Theme.of(context).colorScheme.primary,
+                  //               ),
+                  //               maxLines: 1,
+                  //               overflow: TextOverflow.ellipsis,
+                  //             ),
+                  //             const SizedBox(height: 4),
+                  //             Text(
+                  //               store.description,
+                  //               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  //                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                  //               ),
+                  //               maxLines: 2,
+                  //               overflow: TextOverflow.ellipsis,
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //       Align(
+                  //         alignment: Alignment.topRight,
+                  //         child: Chip(
+                  //           label: Text(store.status,
+                  //               style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  //                 color: Theme.of(context).colorScheme.onSecondary,
+                  //                 fontWeight: FontWeight.bold,
+                  //               )),
+                  //           backgroundColor: Theme.of(context).colorScheme.secondary,
+                  //           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  //   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  //   padding: const EdgeInsets.all(16),
+                  // ),
 
                   const SizedBox(height: 20), // Spacing between sections
 
