@@ -10,6 +10,15 @@ import '../../models/Offer.dart';
 import '../../models/Store.dart';
 
 class HomeController extends GetxController {
+
+  final flippedCards = <String, bool>{}.obs;
+
+  bool isCardFlipped(Product product) {
+    return flippedCards[product.id] ?? false;
+  }
+  void toggleCardFlip(Product product) {
+    flippedCards[product.id] = !isCardFlipped(product);
+  }
   RxList<Product> filteredMenuItems = <Product>[].obs;
   RxList<Product> allProducts = <Product>[].obs; // Add this line
 
@@ -23,14 +32,16 @@ class HomeController extends GetxController {
   RxList<Offer> offers = <Offer>[].obs;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final Logger _logger = Logger();
+  final Logger _logger = Logger(
+
+  );
   final String storeId = "p2HNRulZDPyjYcSMgvRP"; // centralize store ID
 
   @override
   void onInit() {
     fetchMenuItems(); // Fetch all products initially
     fetchStoreInfo(); // Fetch store information
-    fetchOffers(); // Fetch active offers
+    // fetchOffers(); // Fetch active offers
     super.onInit();
   }
 
@@ -38,14 +49,14 @@ class HomeController extends GetxController {
   /// ✅ Fetch products only from the current store and extract unique categories
   Future<void> fetchMenuItems() async {
     isLoading(true);
-    _logger.i('Fetching products for store: $storeId');
+    _logger.e('Fetching products for store: $storeId');
     try {
       final productDocs = await _firestore
           .collection('products')
           .where('store_id', isEqualTo: storeId)
           .get();
 
-      _logger.i('Products fetched: ${productDocs.docs.length}');
+      _logger.e('Products fetched: ${productDocs.docs.length}');
 
       List<Product> products = [];
       Set<String> categorySet = {};
@@ -71,13 +82,13 @@ class HomeController extends GetxController {
     }
   }// New method to reset filter
   void resetCategoryFilter() {
-    _logger.i("Resetting category filter");
+    _logger.e("Resetting category filter");
     selectedCategory.value = null;
     filteredMenuItems.assignAll(allProducts);
   }
   // Filter products by selected category
   void filterByCategory(String category) {
-    _logger.i("Filtering by category: $category");
+    _logger.e("Filtering by category: $category");
     selectedCategory.value = category;
 
     final filtered = allProducts.where((product) => product.category == category).toList();
@@ -85,14 +96,14 @@ class HomeController extends GetxController {
   }
   // Fetch Store Information
   Future<void> fetchStoreInfo() async {
-    _logger.i('Fetching store information...');
+    _logger.e('Fetching store information...');
     try {
       final storeDoc = await _firestore.collection('stores').doc(storeId).get(); // Replace with the actual store_id
       final Map<String, dynamic> data = storeDoc.data() as Map<String, dynamic>;
 
       if (storeDoc.exists) {
         storeInfo.value = Store.fromMap(storeId,data);
-        _logger.i('Store info fetched: ${storeInfo.value?.name}');
+        _logger.e('Store info fetched: ${storeInfo.value?.name}');
       } else {
         _logger.e('Store not found');
       }
@@ -104,13 +115,13 @@ class HomeController extends GetxController {
 
   // Fetch active Offers for the Store
   Future<void> fetchOffers() async {
-    _logger.i('Fetching offers...');
+    _logger.e('Fetching offers...');
     try {
       final offerDocs = await _firestore
           .collection('offers')
           .where('store_id', isEqualTo: "p2HNRulZDPyjYcSMgvRP") // Only fetch active offers
           .get();
-      _logger.i('Offers fetched: ${offerDocs.docs.length}');
+      _logger.e('Offers fetched: ${offerDocs.docs.length}');
 
       offers.assignAll(
         offerDocs.docs.map((doc) {

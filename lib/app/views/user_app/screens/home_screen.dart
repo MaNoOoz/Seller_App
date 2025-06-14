@@ -1,18 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
-import '../models/Offer.dart';
 import '../models/product.dart';
 import '../widgets/StoreInfoWidget.dart';
 import '../widgets/modern_app_bar.dart';
+import 'controllers/cart_controller.dart';
 import 'controllers/home_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
-  final ProductController controller = Get.put(ProductController());
+  final CartController cartController = Get.find<CartController>();
 
   // final ProductController controller = Get.find<ProductController>();
 
@@ -31,7 +30,7 @@ class HomeScreen extends StatelessWidget {
           // RTL support
           textDirection: TextDirection.rtl,
           child: Obx(() {
-            Logger().i('Loading: ${homeController.isLoading.value}');
+            Logger().d('Loading: ${homeController.isLoading.value}');
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,244 +60,7 @@ class HomeScreen extends StatelessWidget {
   }
 
 
-  Widget _buildWelcomeSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-      child: Row(
-        children: [
-          const Icon(Icons.waving_hand, color: Colors.amber),
-          const SizedBox(width: 8),
-          Text(
-            "مرحبا بكم! 👋",
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onBackground,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'DG Sahabah',
-                ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildAppBar(BuildContext context) {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme
-                  .of(context)
-                  .colorScheme
-                  .surface,
-              Theme
-                  .of(context)
-                  .colorScheme
-                  .surface,
-            ],
-          ),
-        ),
-      ),
-
-      toolbarHeight: 180,
-      // Increased height for modern look
-      backgroundColor: Theme
-          .of(context)
-          .colorScheme
-          .surface,
-      surfaceTintColor: Colors.transparent,
-      // For Material 3
-      elevation: 0.5,
-      // Subtle shadow
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {},
-        tooltip: 'القائمة', // Arabic for 'Menu'
-      ),
-      title: Obx(() {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              homeController.storeInfo.value?.name ?? 'جاري التحميل...',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .onSurface,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'DG Sahabah',
-              ),
-            ),
-            SizedBox(height: 4),
-
-            if (homeController.storeInfo.value != null)
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'متجرك المفضل', // "Your favorite store" in Arabic
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(
-                    color: Theme
-                        .of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.7),
-                    fontFamily: 'DG Sahabah',
-                  ),
-                ),
-              ),
-          ],
-        );
-      }),
-      actions: [
-        IconButton(
-          icon: Badge(
-            // Notification badge
-            label: const Text('3'), // Replace with dynamic count
-            child: const Icon(Icons.notifications_outlined),
-          ),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 8),
-      ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(
-          height: 1,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          color: Theme
-              .of(context)
-              .dividerColor
-              .withOpacity(0.1),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOffersCarousel(BuildContext context) {
-    if (homeController.offers.isEmpty && !homeController.isLoading.value) {
-      return Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Text(
-            'لا توجد عروض متاحة حالياً',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                  fontFamily: 'DG Sahabah',
-                ),
-          ),
-        ),
-      );
-    }
-
-    return CarouselSlider.builder(
-      itemCount: homeController.offers.isEmpty ? 1 : homeController.offers.length,
-      itemBuilder: (context, index, _) {
-        if (homeController.offers.isEmpty) {
-          return _buildLoadingOfferCard(context);
-        }
-        return _buildOfferCard(context, homeController.offers[index]);
-      },
-      options: CarouselOptions(
-        height: 200.0,
-        enlargeCenterPage: true,
-        autoPlay: true,
-        aspectRatio: 16 / 9,
-        viewportFraction: 0.8,
-      ),
-    );
-  }
-
-  Widget _buildLoadingOfferCard(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[300],
-        ),
-        child: Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOfferCard(BuildContext context, Offer offer) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          image: DecorationImage(
-            image: CachedNetworkImageProvider(offer.bannerImageUrl),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              right: 16, // RTL adjustment
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end, // RTL adjustment
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.local_offer, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        offer.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'DG Sahabah',
-                            ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    offer.description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white70,
-                          fontFamily: 'DG Sahabah',
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Center(
@@ -380,11 +142,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildFlipCard(Product product, BuildContext context) {
-    final controller = Get.find<ProductController>();
     return GestureDetector(
-      onTap: () => controller.toggleCardFlip(product),
+      onTap: () => homeController.toggleCardFlip(product),
       child: Obx(() {
-        final isFlipped = controller.isCardFlipped(product);
+        final isFlipped = homeController.isCardFlipped(product);
         return TweenAnimationBuilder(
           tween: Tween<double>(begin: isFlipped ? 1 : 0, end: isFlipped ? 1 : 0),
           duration: const Duration(milliseconds: 800),
@@ -457,10 +218,18 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.touch_app, size: 16),
               SizedBox(width: 4),
               Text('', style: TextStyle(fontSize: 10)),
+              SizedBox(width: 4),
+              IconButton(
+                icon: Icon(Icons.shopping_cart_checkout),
+                onPressed: () {
+                  cartController.addToCart(product);
+                },
+                tooltip: 'إضافة إلى السلة',
+              ),
             ],
           ),
         ],
@@ -470,7 +239,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildCardBack(Product product, BuildContext context) {
     return Container(
-      width: 180,
+      width: 280,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -518,7 +287,9 @@ class HomeScreen extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.shopping_cart_checkout),
-                onPressed: () {},
+                onPressed: () {
+                  cartController.addToCart(product);
+                },
                 tooltip: 'إضافة إلى السلة',
               ),
             ],
@@ -587,14 +358,3 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class ProductController extends GetxController {
-  final flippedCards = <String, bool>{}.obs;
-
-  bool isCardFlipped(Product product) {
-    return flippedCards[product.id] ?? false;
-  }
-
-  void toggleCardFlip(Product product) {
-    flippedCards[product.id] = !isCardFlipped(product);
-  }
-}

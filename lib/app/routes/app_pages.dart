@@ -1,4 +1,5 @@
 // lib/app/routes/app_pages.dart
+import 'package:app/app/views/user_app/screens/cart_screen.dart';
 import 'package:get/get.dart';
 
 import '../../main.dart';
@@ -23,6 +24,7 @@ import '../views/products/edit_product_screen.dart';
 import '../views/products/products_list_controller.dart';
 import '../views/products/products_list_screen.dart';
 import '../views/splash.dart';
+import '../views/user_app/screens/controllers/cart_controller.dart';
 import '../views/user_app/screens/home_screen.dart';
 
 
@@ -35,6 +37,11 @@ class AppPages {
     GetPage(
       name: Routes.HOME,
       page: () =>  HomeScreen(),
+    ),
+    GetPage(
+      name: Routes.CART,
+      page: () =>  CartScreen(),
+
     ),
     GetPage(
       name: Routes.SPLASH,
