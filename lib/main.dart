@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
 
       // Theme configuration now references AppThemes class
       themeMode: themeService.themeMode,
-      theme: AppThemes.myCustomTheme,
+      theme: AppThemes.lightTheme,
       // Use the light theme from AppThemes
       darkTheme: AppThemes.darkTheme,
       // Use the dark theme from AppThemes
