@@ -30,7 +30,6 @@ void main() async {
   // Get.put(AuthController());
   Get.put(ThemeService()); // Initialize ThemeService
   Get.put(CartController()); // Make it available globally
-
   runApp(const MyApp());
 }
 

@@ -11,16 +11,16 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'سلة المشتريات',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.black,
+        // foregroundColor: Colors.black,
       ),
       body: Obx(() {
         final cartItems = cartController.cartItems;
@@ -59,7 +59,7 @@ class CartScreen extends StatelessWidget {
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      // color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -90,12 +90,12 @@ class CartScreen extends StatelessWidget {
                       ),
                       subtitle: Text(
                         '${product.price.toStringAsFixed(0)} ل.س',
-                        style: TextStyle(color: Colors.grey[600]),
+                        // style: TextStyle(color: Colors.grey[600]),
                       ),
                       trailing: Container(
                         width: 120,
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          // color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -130,7 +130,7 @@ class CartScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
@@ -153,7 +153,7 @@ class CartScreen extends StatelessWidget {
                         '${cartController.totalPrice.toStringAsFixed(0)} ل.س',
                         style: const TextStyle(
                           fontSize: 18,
-                          color: Colors.black,
+                          // color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -167,8 +167,8 @@ class CartScreen extends StatelessWidget {
                           icon: const Icon(FontAwesomeIcons.whatsapp, size: 18),
                           label: const Text('طلب عبر واتساب'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            foregroundColor: Colors.white,
+                            // backgroundColor: Colors.black,
+                            // foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -189,8 +189,8 @@ class CartScreen extends StatelessWidget {
                           icon: const Icon(Icons.delete_forever, size: 18),
                           label: const Text('مسح السلة'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            side: const BorderSide(color: Colors.black),
+                            // foregroundColor: Colors.black,
+                            // side: const BorderSide(color: Colors.black),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -209,14 +209,14 @@ class CartScreen extends StatelessWidget {
                                 },
                                 child: const Text(
                                   "نعم",
-                                  style: TextStyle(color: Colors.black),
+                                  // style: TextStyle(color: Colors.black),
                                 ),
                               ),
                               cancel: TextButton(
                                 onPressed: () => Get.back(),
                                 child: const Text(
                                   "لا",
-                                  style: TextStyle(color: Colors.black),
+                                  // style: TextStyle(color: Colors.black),
                                 ),
                               ),
                             );
